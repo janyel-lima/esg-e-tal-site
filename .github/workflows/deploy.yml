@@ -1,0 +1,44 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main          # dispara no push para a branch main
+  workflow_dispatch:  # permite disparo manual pela interface do GitHub
+
+permissions:
+  contents: read
+  pages:    write
+  id-token: write
+
+# Evita deploys simultâneos; o mais recente cancela o anterior
+concurrency:
+  group:   "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url:  ${{ steps.deployment.outputs.page_url }}
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ⬇️  Checkout
+        uses: actions/checkout@v4
+
+      - name: 🔧  Setup Pages
+        uses: actions/configure-pages@v5
+
+      # ── Upload todos os arquivos da raiz do repositório ──────────────────
+      # O site é 100% estático: index.html + main.js + admin.js +
+      # firebase-config.js + styles.css (se existir)
+      - name: 📦  Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "."   # raiz do repo — ajuste para "docs/" se preferir
+
+      - name: 🚀  Deploy
+        id:   deployment
+        uses: actions/deploy-pages@v4
