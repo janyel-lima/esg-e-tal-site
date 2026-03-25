@@ -1522,6 +1522,383 @@
         gap: .875rem
       }
     }
+
+    /* ═══════════════════════════════════════════════════════════════
+       THEME-AWARE DARK SECTIONS + CAROUSEL + CONTACT BG  (v3)
+    ═══════════════════════════════════════════════════════════════ */
+
+    /* ── News section overlay ── */
+    .news-bg-ov {
+      transition: background .4s
+    }
+
+    .dark .news-bg-ov {
+      background: linear-gradient(135deg, rgba(4, 10, 20, .94) 0%, rgba(10, 24, 42, .91) 60%, rgba(4, 10, 20, .89) 100%)
+    }
+
+    html:not(.dark) .news-bg-ov {
+      background: linear-gradient(135deg, rgba(248, 245, 240, .97) 0%, rgba(240, 236, 230, .95) 60%, rgba(248, 244, 240, .97) 100%)
+    }
+
+    /* ── News card text ── */
+    .dark .news-hl {
+      color: #fff
+    }
+
+    html:not(.dark) .news-hl {
+      color: var(--txt)
+    }
+
+    .dark .news-body {
+      color: rgba(255, 255, 255, .52)
+    }
+
+    html:not(.dark) .news-body {
+      color: var(--txt2)
+    }
+
+    .dark .news-card {
+      background: rgba(255, 255, 255, .045);
+      border-color: rgba(255, 255, 255, .08)
+    }
+
+    html:not(.dark) .news-card {
+      background: var(--surf);
+      border-color: var(--bdr);
+      box-shadow: var(--sh)
+    }
+
+    .dark .news-card:hover {
+      background: rgba(255, 255, 255, .07);
+      border-color: rgba(16, 185, 129, .26)
+    }
+
+    html:not(.dark) .news-card:hover {
+      background: var(--surf2);
+      border-color: rgba(16, 185, 129, .4);
+      transform: translateY(-3px)
+    }
+
+    /* ── Newsletter card ── */
+    .dark .nl-card {
+      background: linear-gradient(160deg, rgba(16, 185, 129, .13), rgba(16, 185, 129, .04));
+      border-color: rgba(16, 185, 129, .22)
+    }
+
+    html:not(.dark) .nl-card {
+      background: linear-gradient(160deg, rgba(16, 185, 129, .07), rgba(16, 185, 129, .02));
+      border-color: rgba(16, 185, 129, .18)
+    }
+
+    .dark .nl-title {
+      color: #fff
+    }
+
+    html:not(.dark) .nl-title {
+      color: var(--txt)
+    }
+
+    .dark .nl-sub {
+      color: rgba(255, 255, 255, .44)
+    }
+
+    html:not(.dark) .nl-sub {
+      color: var(--txt2)
+    }
+
+    .dark .nl-inp {
+      background: rgba(255, 255, 255, .065);
+      border-color: rgba(255, 255, 255, .12);
+      color: #fff
+    }
+
+    .dark .nl-inp::placeholder {
+      color: rgba(255, 255, 255, .28)
+    }
+
+    html:not(.dark) .nl-inp {
+      background: var(--surf);
+      border-color: var(--bdr);
+      color: var(--txt)
+    }
+
+    html:not(.dark) .nl-inp::placeholder {
+      color: var(--txt3)
+    }
+
+    .dark .nl-disc {
+      color: rgba(255, 255, 255, .27)
+    }
+
+    html:not(.dark) .nl-disc {
+      color: var(--txt3)
+    }
+
+    .dark .nl-ok-t {
+      color: #fff
+    }
+
+    html:not(.dark) .nl-ok-t {
+      color: var(--txt)
+    }
+
+    .dark .nl-ok-b {
+      color: rgba(255, 255, 255, .44)
+    }
+
+    html:not(.dark) .nl-ok-b {
+      color: var(--txt2)
+    }
+
+    .dark .nl-img-ph {
+      background: rgba(255, 255, 255, .05);
+      border-color: rgba(255, 255, 255, .13);
+      color: rgba(255, 255, 255, .28)
+    }
+
+    html:not(.dark) .nl-img-ph {
+      background: var(--bg2);
+      border-color: var(--bdr);
+      color: var(--txt3)
+    }
+
+    /* ── Quatro Pilares panel (about-vis) ── */
+    .dark .about-vis {
+      background: linear-gradient(145deg, rgba(11, 25, 41, .98), rgba(22, 45, 74, .96))
+    }
+
+    html:not(.dark) .about-vis {
+      background: linear-gradient(145deg, #1a3655, #0e2035)
+    }
+
+    .dark .std-item {
+      background: rgba(255, 255, 255, .055);
+      border-color: rgba(255, 255, 255, .07)
+    }
+
+    html:not(.dark) .std-item {
+      background: rgba(255, 255, 255, .06);
+      border-color: rgba(255, 255, 255, .1)
+    }
+
+    /* ── Research section ── */
+    .dark .research-sec {
+      background: #07111E;
+      background-image: radial-gradient(ellipse 55% 50% at 8% 82%, rgba(139, 92, 246, .07), transparent 60%)
+    }
+
+    html:not(.dark) .research-sec {
+      background: var(--bg2);
+      background-image: radial-gradient(ellipse 55% 50% at 8% 82%, rgba(139, 92, 246, .04), transparent 60%)
+    }
+
+    .dark .res-date {
+      color: #a78bfa
+    }
+
+    html:not(.dark) .res-date {
+      color: var(--purple)
+    }
+
+    .dark .res-hl {
+      color: #fff
+    }
+
+    html:not(.dark) .res-hl {
+      color: var(--txt)
+    }
+
+    .dark .res-auth {
+      color: rgba(255, 255, 255, .4)
+    }
+
+    html:not(.dark) .res-auth {
+      color: var(--txt2)
+    }
+
+    .dark .res-txt {
+      color: rgba(255, 255, 255, .52)
+    }
+
+    html:not(.dark) .res-txt {
+      color: var(--txt2)
+    }
+
+    .dark .res-card {
+      background: rgba(255, 255, 255, .035);
+      border-color: rgba(255, 255, 255, .07)
+    }
+
+    html:not(.dark) .res-card {
+      background: var(--surf);
+      border-color: var(--bdr);
+      box-shadow: var(--sh)
+    }
+
+    /* ── Footer ── */
+    footer {
+      transition: background .35s
+    }
+
+    .dark footer {
+      background: #050D16
+    }
+
+    html:not(.dark) footer {
+      background: #0B1929
+    }
+
+    /* ── Contact: background image + glassy card ── */
+    .contact-sec {
+      position: relative;
+      overflow: hidden
+    }
+
+    .contact-bg-img {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      background-image: url('https://esgetal.com.br/engl/images/768abd4ed93aca197a318dba1fefa5ea.png');
+      background-size: cover;
+      background-position: center 30%;
+    }
+
+    .contact-bg-ov {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      transition: background .4s
+    }
+
+    .dark .contact-bg-ov {
+      background: linear-gradient(135deg, rgba(8, 17, 28, .93) 0%, rgba(11, 25, 41, .88) 100%)
+    }
+
+    html:not(.dark) .contact-bg-ov {
+      background: linear-gradient(135deg, rgba(248, 245, 240, .93) 0%, rgba(238, 234, 228, .9) 100%)
+    }
+
+    .contact-rel {
+      position: relative;
+      z-index: 2
+    }
+
+    .dark .contact-card {
+      background: rgba(10, 22, 38, .72);
+      border-color: rgba(255, 255, 255, .1);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px)
+    }
+
+    html:not(.dark) .contact-card {
+      background: rgba(255, 255, 255, .84);
+      border-color: rgba(14, 32, 53, .12);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px)
+    }
+
+    /* ═══ CAROUSEL ENGINE ═══ */
+    .cr-wrap {
+      position: relative;
+      overflow: hidden
+    }
+
+    .cr-track {
+      display: flex;
+      gap: clamp(.875rem, 1.5vw, 1.25rem);
+      transition: transform .56s cubic-bezier(.25, .46, .45, .94);
+      will-change: transform
+    }
+
+    .cr-slide {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column
+    }
+
+    /* Nav bar */
+    .cr-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .625rem;
+      margin-top: 1.75rem
+    }
+
+    .cr-btn {
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 50%;
+      border: 1.5px solid var(--bdr);
+      background: var(--surf);
+      color: var(--txt2);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .75rem;
+      transition: all .25s;
+      flex-shrink: 0
+    }
+
+    .cr-btn:hover:not(:disabled) {
+      border-color: var(--green);
+      color: var(--green);
+      background: rgba(16, 185, 129, .07)
+    }
+
+    .cr-btn:disabled {
+      opacity: .28;
+      cursor: default;
+      pointer-events: none
+    }
+
+    .dark .cr-btn {
+      background: rgba(255, 255, 255, .07);
+      border-color: rgba(255, 255, 255, .14)
+    }
+
+    .dark .cr-btn:hover:not(:disabled) {
+      background: rgba(16, 185, 129, .1);
+      border-color: rgba(16, 185, 129, .4)
+    }
+
+    /* Dots */
+    .cr-dots {
+      display: flex;
+      gap: .375rem;
+      align-items: center
+    }
+
+    .cr-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 99px;
+      background: var(--bdr);
+      border: none;
+      cursor: pointer;
+      transition: width .35s, background .35s;
+      padding: 0;
+      flex-shrink: 0
+    }
+
+    .dark .cr-dot {
+      background: rgba(255, 255, 255, .2)
+    }
+
+    .cr-dot.on {
+      width: 22px;
+      background: var(--green)
+    }
+
+    /* Keep area cards same height in carousel */
+    #areas-cr .cr-slide {
+      height: 100%
+    }
+
+    #areas-cr .area-card {
+      height: 100%
+    }
   </style>
 </head>
 
@@ -1700,25 +2077,33 @@
 
       <!-- ── Notícias extras (Admin CMS) ── -->
       <template x-if="dynamicNewsItems && dynamicNewsItems.length > 0">
-        <div
-          style="margin-top:1.5rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(340px,100%),1fr));gap:1.25rem">
-          <template x-for="item in dynamicNewsItems" :key="item.id">
-            <div class="news-card">
-              <div class="news-date">
-                <i class="fa-regular fa-calendar" style="margin-right:.35rem"></i>
-                <span x-text="(lang==='en'&&item.date&&item.date.en)?item.date.en:(item.date&&item.date.pt)||''"></span>
+        <div class="cr-wrap" id="dyn-news-cr" style="margin-top:1.5rem"
+          x-effect="dynamicNewsItems; $nextTick(()=>window.CMS&&CMS.initCarousel('dyn-news-cr',{desktop:3,tablet:2,autoplay:5000}))">
+          <div class="cr-track">
+            <template x-for="item in dynamicNewsItems" :key="item.id">
+              <div class="news-card cr-slide">
+                <div class="news-date">
+                  <i class="fa-regular fa-calendar" style="margin-right:.35rem"></i>
+                  <span
+                    x-text="(lang==='en'&&item.date&&item.date.en)?item.date.en:(item.date&&item.date.pt)||''"></span>
+                </div>
+                <h3 class="news-hl"
+                  x-text="(lang==='en'&&item.headline&&item.headline.en)?item.headline.en:(item.headline&&item.headline.pt)||''">
+                </h3>
+                <p class="news-body"
+                  x-text="(lang==='en'&&item.body&&item.body.en)?item.body.en:(item.body&&item.body.pt)||''"></p>
+                <template x-if="item.linkUrl">
+                  <a class="nlink" :href="item.linkUrl" target="_blank" rel="noopener"
+                    x-text="(lang==='en'&&item.linkText&&item.linkText.en)?item.linkText.en:(item.linkText&&item.linkText.pt)||'Saiba mais'"></a>
+                </template>
               </div>
-              <h3 class="news-hl"
-                x-text="(lang==='en'&&item.headline&&item.headline.en)?item.headline.en:(item.headline&&item.headline.pt)||''">
-              </h3>
-              <p class="news-body"
-                x-text="(lang==='en'&&item.body&&item.body.en)?item.body.en:(item.body&&item.body.pt)||''"></p>
-              <template x-if="item.linkUrl">
-                <a class="nlink" :href="item.linkUrl" target="_blank" rel="noopener"
-                  x-text="(lang==='en'&&item.linkText&&item.linkText.en)?item.linkText.en:(item.linkText&&item.linkText.pt)||'Saiba mais'"></a>
-              </template>
-            </div>
-          </template>
+            </template>
+          </div>
+          <div class="cr-nav">
+            <button class="cr-btn" data-prev aria-label="Anterior"><i class="fa-solid fa-chevron-left"></i></button>
+            <div class="cr-dots"></div>
+            <button class="cr-btn" data-next aria-label="Próximo"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
         </div>
       </template>
     </div>
@@ -1795,21 +2180,29 @@
         <h2 class="sec-h" x-text="t('areas.title')"></h2>
         <div class="divider" style="margin:1rem auto 0"></div>
       </div>
-      <div class="areas-grid" :class="lang==='en'?'cols-3':''">
-        <template x-for="area in areas" :key="area.key">
-          <div class="area-card" @click="openModal(area.key)">
-            <div class="ac-bar" :style="'background:'+area.color"></div>
-            <img :src="area.img" :alt="area.name" class="ac-img" loading="lazy">
-            <div class="ac-body">
-              <div class="ac-icon" :style="'background:'+area.colorSoft+';color:'+area.color"><i
-                  :class="'fa-solid '+area.icon"></i></div>
-              <h3 class="ac-name" x-text="area.name"></h3>
-              <p class="ac-desc" x-text="area.desc"></p>
-              <div class="ac-cta" :style="'color:'+area.color"><span x-text="t('areas.learnMore')"></span><i
-                  class="fa-solid fa-arrow-right ac-arr"></i></div>
+      <div class="cr-wrap" id="areas-cr"
+        x-effect="areas; $nextTick(()=>window.CMS&&CMS.initCarousel('areas-cr',{desktop:areas.length,tablet:2,autoplay:4500}))">
+        <div class="cr-track">
+          <template x-for="area in areas" :key="area.key">
+            <div class="area-card cr-slide" @click="openModal(area.key)">
+              <div class="ac-bar" :style="'background:'+area.color"></div>
+              <img :src="area.img" :alt="area.name" class="ac-img" loading="lazy">
+              <div class="ac-body">
+                <div class="ac-icon" :style="'background:'+area.colorSoft+';color:'+area.color"><i
+                    :class="'fa-solid '+area.icon"></i></div>
+                <h3 class="ac-name" x-text="area.name"></h3>
+                <p class="ac-desc" x-text="area.desc"></p>
+                <div class="ac-cta" :style="'color:'+area.color"><span x-text="t('areas.learnMore')"></span><i
+                    class="fa-solid fa-arrow-right ac-arr"></i></div>
+              </div>
             </div>
-          </div>
-        </template>
+          </template>
+        </div>
+        <div class="cr-nav">
+          <button class="cr-btn" data-prev aria-label="Anterior"><i class="fa-solid fa-chevron-left"></i></button>
+          <div class="cr-dots"></div>
+          <button class="cr-btn" data-next aria-label="Próximo"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
       </div>
     </div>
   </section>
@@ -1870,8 +2263,8 @@
   <!-- ══ RESEARCH ══ -->
   <section id="research" class="research-sec">
     <div class="wrap">
-      <span class="sec-lbl" style="color:#a78bfa" x-text="t('research.title')"></span>
-      <h2 class="sec-h" style="color:#fff" x-text="t('research.title')"></h2>
+      <span class="sec-lbl" :style="darkMode?'color:#a78bfa':'color:var(--purple)'" x-text="t('research.title')"></span>
+      <h2 class="sec-h" :style="darkMode?'color:#fff':''" x-text="t('research.title')"></h2>
       <div class="divider" style="background:var(--purple)"></div>
       <div class="res-card">
         <div class="res-body">
@@ -1892,34 +2285,42 @@
 
       <!-- ── Artigos extras (Admin CMS) ── -->
       <template x-if="dynamicResearchItems && dynamicResearchItems.length > 0">
-        <div style="margin-top:1.5rem;display:flex;flex-direction:column;gap:1.25rem">
-          <template x-for="item in dynamicResearchItems" :key="item.id">
-            <div class="res-card" style="grid-template-columns:1fr">
-              <div class="res-body">
-                <div class="res-date">
-                  <i class="fa-regular fa-calendar" style="margin-right:.35rem"></i>
-                  <span
-                    x-text="(lang==='en'&&item.date&&item.date.en)?item.date.en:(item.date&&item.date.pt)||''"></span>
-                </div>
-                <h3 class="res-hl"
-                  x-text="(lang==='en'&&item.headline&&item.headline.en)?item.headline.en:(item.headline&&item.headline.pt)||''">
-                </h3>
-                <p class="res-auth"
-                  x-text="(lang==='en'&&item.author&&item.author.en)?item.author.en:(item.author&&item.author.pt)||''">
-                </p>
-                <template x-if="item.ctaUrl">
-                  <a :href="item.ctaUrl" target="_blank" rel="noopener" class="btn btn-purple"
-                    style="margin-bottom:1.25rem;display:inline-flex">
-                    <i class="fa-solid fa-file-lines"></i>
+        <div class="cr-wrap" id="dyn-res-cr" style="margin-top:1.5rem"
+          x-effect="dynamicResearchItems; $nextTick(()=>window.CMS&&CMS.initCarousel('dyn-res-cr',{desktop:2,tablet:1,autoplay:6000}))">
+          <div class="cr-track">
+            <template x-for="item in dynamicResearchItems" :key="item.id">
+              <div class="res-card cr-slide" style="min-width:0">
+                <div class="res-body">
+                  <div class="res-date">
+                    <i class="fa-regular fa-calendar" style="margin-right:.35rem"></i>
                     <span
-                      x-text="(lang==='en'&&item.ctaText&&item.ctaText.en)?item.ctaText.en:(item.ctaText&&item.ctaText.pt)||'Acessar'"></span>
-                  </a>
-                </template>
-                <p class="res-txt"
-                  x-text="(lang==='en'&&item.body&&item.body.en)?item.body.en:(item.body&&item.body.pt)||''"></p>
+                      x-text="(lang==='en'&&item.date&&item.date.en)?item.date.en:(item.date&&item.date.pt)||''"></span>
+                  </div>
+                  <h3 class="res-hl"
+                    x-text="(lang==='en'&&item.headline&&item.headline.en)?item.headline.en:(item.headline&&item.headline.pt)||''">
+                  </h3>
+                  <p class="res-auth"
+                    x-text="(lang==='en'&&item.author&&item.author.en)?item.author.en:(item.author&&item.author.pt)||''">
+                  </p>
+                  <template x-if="item.ctaUrl">
+                    <a :href="item.ctaUrl" target="_blank" rel="noopener" class="btn btn-purple"
+                      style="margin-bottom:1.25rem;display:inline-flex">
+                      <i class="fa-solid fa-file-lines"></i>
+                      <span
+                        x-text="(lang==='en'&&item.ctaText&&item.ctaText.en)?item.ctaText.en:(item.ctaText&&item.ctaText.pt)||'Acessar'"></span>
+                    </a>
+                  </template>
+                  <p class="res-txt"
+                    x-text="(lang==='en'&&item.body&&item.body.en)?item.body.en:(item.body&&item.body.pt)||''"></p>
+                </div>
               </div>
-            </div>
-          </template>
+            </template>
+          </div>
+          <div class="cr-nav">
+            <button class="cr-btn" data-prev aria-label="Anterior"><i class="fa-solid fa-chevron-left"></i></button>
+            <div class="cr-dots"></div>
+            <button class="cr-btn" data-next aria-label="Próximo"><i class="fa-solid fa-chevron-right"></i></button>
+          </div>
         </div>
       </template>
     </div>
@@ -1928,7 +2329,9 @@
 
   <!-- ══ CONTACT ══ -->
   <section id="contact" class="contact-sec">
-    <div class="wrap">
+    <div class="contact-bg-img"></div>
+    <div class="contact-bg-ov"></div>
+    <div class="contact-rel wrap">
       <div class="contact-card">
         <div
           style="display:inline-flex;align-items:center;gap:.4rem;padding:.28rem .8rem;border-radius:99px;background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.16);color:var(--green);font-size:var(--xs);font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:1.25rem">
@@ -1976,6 +2379,150 @@
       <div class="ft-rights" x-text="t('footer.rights')"></div>
     </div>
   </footer>
+
+
+  <!-- ═══ CAROUSEL ENGINE ═══ -->
+  <script>
+      (function () {
+        window.CMS = window.CMS || {};
+
+        CMS.initCarousel = function (id, opts) {
+          opts = Object.assign({ desktop: 4, tablet: 2, autoplay: 0 }, opts);
+          var wrap = document.getElementById(id);
+          if (!wrap) return;
+
+          // Destroy previous instance
+          if (wrap._cr) { clearInterval(wrap._cr.autoTimer); }
+          wrap._cr = {};
+
+          var track = wrap.querySelector('.cr-track');
+          var dotsEl = wrap.querySelector('.cr-dots');
+          if (!track) return;
+
+          var cur = 0;
+
+          function slides() { return Array.prototype.slice.call(track.querySelectorAll('.cr-slide')); }
+          function gap() { return parseFloat(getComputedStyle(track).gap) || 20; }
+
+          function pv() {
+            var w = wrap.offsetWidth;
+            var n = w > 1100 ? opts.desktop : w > 640 ? opts.tablet : 1;
+            return Math.max(1, Math.min(n, slides().length));
+          }
+
+          function slideW() {
+            var n = pv(), g = gap();
+            return (wrap.offsetWidth - (n - 1) * g) / n;
+          }
+
+          function maxCur() { return Math.max(0, slides().length - pv()); }
+
+          function buildDots() {
+            if (!dotsEl) return;
+            var m = maxCur();
+            dotsEl.innerHTML = '';
+            for (var i = 0; i <= m; i++) {
+              (function (idx) {
+                var d = document.createElement('button');
+                d.className = 'cr-dot' + (idx === cur ? ' on' : '');
+                d.setAttribute('aria-label', 'Slide ' + (idx + 1));
+                d.addEventListener('click', function () { resetAuto(); go(idx); });
+                dotsEl.appendChild(d);
+              })(i);
+            }
+            var nav = wrap.querySelector('.cr-nav');
+            if (nav) nav.style.display = m <= 0 ? 'none' : '';
+          }
+
+          function updateNav() {
+            if (dotsEl) {
+              Array.prototype.forEach.call(dotsEl.querySelectorAll('.cr-dot'), function (d, i) {
+                d.classList.toggle('on', i === cur);
+              });
+            }
+            var pEl = wrap.querySelector('[data-prev]');
+            var nEl = wrap.querySelector('[data-next]');
+            if (pEl) pEl.disabled = cur <= 0;
+            if (nEl) nEl.disabled = cur >= maxCur();
+          }
+
+          function go(n, instant) {
+            cur = Math.max(0, Math.min(maxCur(), n));
+            var offset = cur * (slideW() + gap());
+            if (instant) {
+              var prev = track.style.transition;
+              track.style.transition = 'none';
+              track.style.transform = 'translateX(-' + offset + 'px)';
+              track.offsetHeight; // force reflow
+              track.style.transition = prev;
+            } else {
+              track.style.transform = 'translateX(-' + offset + 'px)';
+            }
+            updateNav();
+          }
+
+          function layout() {
+            var w = slideW();
+            slides().forEach(function (s) { s.style.width = w + 'px'; });
+            buildDots();
+            go(Math.min(cur, maxCur()), true);
+          }
+
+          var autoTimer = null;
+          function resetAuto() {
+            clearInterval(autoTimer);
+            if (opts.autoplay) {
+              autoTimer = setInterval(function () {
+                cur >= maxCur() ? go(0) : go(cur + 1);
+              }, opts.autoplay);
+            }
+          }
+
+          // Clone buttons to remove old listeners
+          var pOld = wrap.querySelector('[data-prev]');
+          var nOld = wrap.querySelector('[data-next]');
+          if (pOld) { var pNew = pOld.cloneNode(true); pOld.parentNode.replaceChild(pNew, pOld); }
+          if (nOld) { var nNew = nOld.cloneNode(true); nOld.parentNode.replaceChild(nNew, nOld); }
+          var pEl = wrap.querySelector('[data-prev]');
+          var nEl = wrap.querySelector('[data-next]');
+          if (pEl) pEl.addEventListener('click', function () { resetAuto(); go(cur - 1); });
+          if (nEl) nEl.addEventListener('click', function () { resetAuto(); cur >= maxCur() ? go(0) : go(cur + 1); });
+
+          // Touch / drag
+          var tx = 0, dragging = false;
+          track.addEventListener('pointerdown', function (e) { tx = e.clientX; dragging = true; });
+          track.addEventListener('pointerup', function (e) {
+            if (!dragging) return;
+            dragging = false;
+            var dx = e.clientX - tx;
+            if (Math.abs(dx) > 44) { resetAuto(); dx < 0 ? go(cur + 1) : go(cur - 1); }
+          });
+          track.addEventListener('pointerleave', function () { dragging = false; });
+          track.addEventListener('pointercancel', function () { dragging = false; });
+
+          // Pause on hover
+          if (opts.autoplay) {
+            wrap.addEventListener('mouseenter', function () { clearInterval(autoTimer); });
+            wrap.addEventListener('mouseleave', resetAuto);
+          }
+
+          // Resize observer
+          if (window.ResizeObserver) {
+            var rTimer;
+            var ro = new ResizeObserver(function () {
+              clearTimeout(rTimer);
+              rTimer = setTimeout(layout, 80);
+            });
+            ro.observe(wrap);
+            wrap._cr.ro = ro;
+          }
+
+          wrap._cr.autoTimer = autoTimer;
+          layout();
+          resetAuto();
+        };
+      })();
+  </script>
 
 </body>
 
