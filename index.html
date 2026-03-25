@@ -585,14 +585,32 @@
       inset: 0;
       background-size: cover;
       background-position: center;
-      z-index: 0
+      z-index: 0;
+      transition: opacity .4s
+    }
+
+    /* Hide dark photo in light mode — section gets var(--bg2) instead */
+    html:not(.dark) .news-bg-img {
+      opacity: 0
+    }
+
+    html:not(.dark) .news-sec {
+      background: var(--bg2)
     }
 
     .news-bg-ov {
       position: absolute;
       inset: 0;
-      background: linear-gradient(135deg, rgba(4, 10, 20, .94) 0%, rgba(10, 24, 42, .91) 60%, rgba(4, 10, 20, .89) 100%);
-      z-index: 1
+      z-index: 1;
+      transition: background .4s
+    }
+
+    .dark .news-bg-ov {
+      background: linear-gradient(135deg, rgba(4, 10, 20, .94) 0%, rgba(10, 24, 42, .91) 60%, rgba(4, 10, 20, .89) 100%)
+    }
+
+    html:not(.dark) .news-bg-ov {
+      background: transparent
     }
 
     .news-rel {
@@ -633,16 +651,30 @@
       font-family: 'Playfair Display', serif;
       font-size: var(--lg);
       font-weight: 600;
-      color: #fff;
-      margin-bottom: .875rem;
-      line-height: 1.45
+      line-height: 1.45;
+      margin-bottom: .875rem
+    }
+
+    .dark .news-hl {
+      color: #fff
+    }
+
+    html:not(.dark) .news-hl {
+      color: var(--txt)
     }
 
     .news-body {
       font-size: var(--sm);
-      color: rgba(255, 255, 255, .52);
       line-height: 1.9;
       margin-bottom: .8rem
+    }
+
+    .dark .news-body {
+      color: rgba(255, 255, 255, .52)
+    }
+
+    html:not(.dark) .news-body {
+      color: var(--txt2)
     }
 
     .nlink {
@@ -2250,6 +2282,227 @@
     html:not(.dark) .news-sec .sec-lbl {
       color: var(--green)
     }
+
+    /* ── News card theme fix ── */
+    .dark .news-card {
+      background: rgba(255, 255, 255, .045);
+      border-color: rgba(255, 255, 255, .08)
+    }
+
+    html:not(.dark) .news-card {
+      background: var(--surf);
+      border-color: var(--bdr);
+      box-shadow: var(--sh)
+    }
+
+    .dark .news-card:hover {
+      background: rgba(255, 255, 255, .07);
+      border-color: rgba(16, 185, 129, .26)
+    }
+
+    html:not(.dark) .news-card:hover {
+      background: var(--surf2);
+      border-color: rgba(16, 185, 129, .4);
+      transform: translateY(-3px)
+    }
+
+    /* ── News unified carousel: 2 per view, equal height ── */
+    .news-sec .cr-wrap {
+      overflow: visible
+    }
+
+    /* allow card shadows to show */
+    .news-sec .cr-track {
+      align-items: stretch
+    }
+
+    #news-cr .cr-slide {
+      height: auto
+    }
+
+    #news-cr .news-card {
+      height: 100%;
+      box-sizing: border-box
+    }
+
+    #news-cr .nl-standalone {
+      height: 100%;
+      box-sizing: border-box
+    }
+
+    /* nav inside dark section */
+    #news-cr .cr-btn {
+      background: rgba(255, 255, 255, .07);
+      border-color: rgba(255, 255, 255, .14);
+      color: rgba(255, 255, 255, .55)
+    }
+
+    #news-cr .cr-btn:hover:not(:disabled) {
+      background: rgba(16, 185, 129, .14);
+      border-color: rgba(16, 185, 129, .5);
+      color: #10B981
+    }
+
+    #news-cr .cr-dot {
+      background: rgba(255, 255, 255, .2)
+    }
+
+    html:not(.dark) #news-cr .cr-btn {
+      background: var(--surf);
+      border-color: var(--bdr);
+      color: var(--txt2)
+    }
+
+    html:not(.dark) #news-cr .cr-btn:hover:not(:disabled) {
+      border-color: var(--green);
+      color: var(--green)
+    }
+
+    html:not(.dark) #news-cr .cr-dot {
+      background: var(--bdr)
+    }
+
+    #news-cr .cr-dot.on {
+      background: var(--green)
+    }
+
+    /* ── Research compact card ── */
+    .res-card-sm {
+      border-radius: var(--rad);
+      padding: clamp(1.25rem, 2vw, 1.75rem);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      box-sizing: border-box;
+    }
+
+    .dark .res-card-sm {
+      background: rgba(255, 255, 255, .04);
+      border: 1px solid rgba(255, 255, 255, .09)
+    }
+
+    html:not(.dark) .res-card-sm {
+      background: var(--surf);
+      border: 1px solid var(--bdr);
+      box-shadow: var(--sh)
+    }
+
+    .res-card-sm .res-date {
+      font-size: var(--xs);
+      font-weight: 600;
+      margin-bottom: .5rem
+    }
+
+    .dark .res-card-sm .res-date {
+      color: #a78bfa
+    }
+
+    html:not(.dark) .res-card-sm .res-date {
+      color: var(--purple)
+    }
+
+    .res-card-sm .res-hl {
+      font-size: var(--md);
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: .5rem
+    }
+
+    .dark .res-card-sm .res-hl {
+      color: #fff
+    }
+
+    html:not(.dark) .res-card-sm .res-hl {
+      color: var(--txt)
+    }
+
+    .res-card-sm .res-auth {
+      font-size: var(--xs);
+      font-style: italic;
+      margin-bottom: .875rem;
+      flex: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden
+    }
+
+    .dark .res-card-sm .res-auth {
+      color: rgba(255, 255, 255, .38)
+    }
+
+    html:not(.dark) .res-card-sm .res-auth {
+      color: var(--txt3)
+    }
+
+    .res-card-sm .res-txt {
+      font-size: var(--xs);
+      line-height: 1.8;
+      margin-bottom: .5rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden
+    }
+
+    .dark .res-card-sm .res-txt {
+      color: rgba(255, 255, 255, .48)
+    }
+
+    html:not(.dark) .res-card-sm .res-txt {
+      color: var(--txt2)
+    }
+
+    /* ── Research unified carousel: 3 per view, equal height ── */
+    #research-cr {
+      margin-top: 1.75rem
+    }
+
+    #research-cr .cr-track {
+      align-items: stretch
+    }
+
+    #research-cr .cr-slide {
+      height: auto
+    }
+
+    /* nav inside dark/light section */
+    .dark #research-cr .cr-btn {
+      background: rgba(255, 255, 255, .07);
+      border-color: rgba(255, 255, 255, .14);
+      color: rgba(255, 255, 255, .55)
+    }
+
+    .dark #research-cr .cr-btn:hover:not(:disabled) {
+      background: rgba(139, 92, 246, .14);
+      border-color: rgba(139, 92, 246, .5);
+      color: #a78bfa
+    }
+
+    .dark #research-cr .cr-dot {
+      background: rgba(255, 255, 255, .2)
+    }
+
+    html:not(.dark) #research-cr .cr-btn {
+      background: var(--surf);
+      border-color: var(--bdr);
+      color: var(--txt2)
+    }
+
+    html:not(.dark) #research-cr .cr-btn:hover:not(:disabled) {
+      border-color: var(--purple);
+      color: var(--purple)
+    }
+
+    html:not(.dark) #research-cr .cr-dot {
+      background: var(--bdr)
+    }
+
+    #research-cr .cr-dot.on {
+      background: var(--purple)
+    }
   </style>
 </head>
 
@@ -2374,107 +2627,117 @@
       <h2 class="sec-h" x-text="t('news.title')"></h2>
       <div class="divider"></div>
 
-      <!-- ── 2-column: carousel left · newsletter right ── -->
-      <div class="news-layout">
+      <!-- Unified carousel: all news + newsletter as last card · 2 per view -->
+      <div class="cr-wrap" id="news-cr"
+        x-effect="lang; $nextTick(()=>window.CMS&&CMS.initCarousel('news-cr',{desktop:2,tablet:2,mobile:1,autoplay:7000}))">
+        <div class="cr-track">
 
-        <!-- LEFT: fixed news cards carousel (items 1 & 2 + dynamic) -->
-        <div class="cr-wrap" id="news-fixed-cr"
-          x-effect="lang; $nextTick(()=>window.CMS&&CMS.initCarousel('news-fixed-cr',{desktop:1,tablet:1,autoplay:6000}))">
-          <div class="cr-track">
-
-            <!-- Card 1 -->
-            <div class="news-card cr-slide">
-              <div class="news-date"><i class="fa-regular fa-calendar" style="margin-right:.35rem"></i><span
-                  x-text="t('news.item1.date')"></span></div>
-              <h3 class="news-hl" x-text="t('news.item1.headline')"></h3>
-              <p class="news-body"><a class="nlink" href="https://esgetal.com.br" target="_blank" rel="noopener"
-                  x-text="t('news.item1.link')"></a> (<a class="nlink" href="https://amazon.com.br" target="_blank"
-                  rel="noopener" x-text="t('news.item1.linkAlt')"></a>). <span x-text="t('news.item1.body')"></span></p>
-              <p class="news-body" x-text="t('news.item1.body2')"></p>
-              <div style="margin-top:1rem"><a href="https://esgetal.com.br" target="_blank" rel="noopener"
-                  style="display:inline-block;opacity:.88;transition:opacity .2s" onmouseover="this.style.opacity='.6'"
-                  onmouseout="this.style.opacity='.88'"><img
-                    src="https://esgetal.com.br/engl/images/c48aec61ba040135cb9186dfbe2a4429.png" alt="Adquirir"
-                    style="height:38px;width:auto;object-fit:contain;border-radius:.35rem"></a></div>
+          <!-- Slide 1: Notícia do livro -->
+          <div class="news-card cr-slide">
+            <div class="news-date"><i class="fa-regular fa-calendar" style="margin-right:.35rem"></i>
+              <span x-text="t('news.item1.date')"></span>
             </div>
-
-            <!-- Card 2 -->
-            <div class="news-card cr-slide">
-              <div class="news-date"><i class="fa-regular fa-calendar" style="margin-right:.35rem"></i><span
-                  x-text="t('news.item2.date')"></span></div>
-              <div
-                style="display:inline-flex;align-items:center;gap:.35rem;padding:.2rem .6rem;border-radius:99px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.28);color:var(--gold);font-size:var(--xs);font-weight:600;margin-bottom:.65rem">
-                <i class="fa-solid fa-award"></i><span x-text="lang==='pt'?'Prêmio':'Award'"></span>
-              </div>
-              <h3 class="news-hl" x-text="t('news.item2.headline')"></h3>
-              <p class="news-body"><a class="nlink" href="https://esgetal.com.br" target="_blank" rel="noopener"
-                  x-text="t('news.item2.link')"></a> <span x-text="t('news.item2.body')"></span> <a class="nlink"
-                  href="https://esgetal.com.br" target="_blank" rel="noopener" x-text="t('news.item2.linkPDF')"></a>.
-              </p>
+            <h3 class="news-hl" x-text="t('news.item1.headline')"></h3>
+            <p class="news-body">
+              <a class="nlink" href="https://esgetal.com.br" target="_blank" rel="noopener"
+                x-text="t('news.item1.link')"></a>
+              (<a class="nlink" href="https://amazon.com.br" target="_blank" rel="noopener"
+                x-text="t('news.item1.linkAlt')"></a>).
+              <span x-text="t('news.item1.body')"></span>
+            </p>
+            <p class="news-body" x-text="t('news.item1.body2')"></p>
+            <div style="margin-top:auto;padding-top:1rem">
+              <a href="https://esgetal.com.br" target="_blank" rel="noopener"
+                style="display:inline-block;opacity:.88;transition:opacity .2s" onmouseover="this.style.opacity='.6'"
+                onmouseout="this.style.opacity='.88'">
+                <img src="https://esgetal.com.br/engl/images/c48aec61ba040135cb9186dfbe2a4429.png" alt="Adquirir"
+                  style="height:38px;width:auto;object-fit:contain;border-radius:.35rem">
+              </a>
             </div>
-
-            <!-- Dynamic extra news as extra slides -->
-            <template x-for="item in dynamicNewsItems" :key="item.id">
-              <div class="news-card cr-slide">
-                <div class="news-date">
-                  <i class="fa-regular fa-calendar" style="margin-right:.35rem"></i>
-                  <span
-                    x-text="(lang==='en'&&item.date&&item.date.en)?item.date.en:(item.date&&item.date.pt)||''"></span>
-                </div>
-                <h3 class="news-hl"
-                  x-text="(lang==='en'&&item.headline&&item.headline.en)?item.headline.en:(item.headline&&item.headline.pt)||''">
-                </h3>
-                <p class="news-body"
-                  x-text="(lang==='en'&&item.body&&item.body.en)?item.body.en:(item.body&&item.body.pt)||''"></p>
-                <template x-if="item.linkUrl">
-                  <a class="nlink" :href="item.linkUrl" target="_blank" rel="noopener"
-                    x-text="(lang==='en'&&item.linkText&&item.linkText.en)?item.linkText.en:(item.linkText&&item.linkText.pt)||'Saiba mais'"></a>
-                </template>
-              </div>
-            </template>
           </div>
 
-          <!-- Nav -->
-          <div class="cr-nav" style="justify-content:flex-start;margin-top:1.125rem">
-            <button class="cr-btn" data-prev aria-label="Anterior"><i class="fa-solid fa-chevron-left"></i></button>
-            <div class="cr-dots"></div>
-            <button class="cr-btn" data-next aria-label="Próximo"><i class="fa-solid fa-chevron-right"></i></button>
+          <!-- Slide 2: Notícia do prêmio -->
+          <div class="news-card cr-slide">
+            <div class="news-date"><i class="fa-regular fa-calendar" style="margin-right:.35rem"></i>
+              <span x-text="t('news.item2.date')"></span>
+            </div>
+            <div
+              style="display:inline-flex;align-items:center;gap:.35rem;padding:.2rem .6rem;border-radius:99px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.28);color:var(--gold);font-size:var(--xs);font-weight:600;margin-bottom:.65rem">
+              <i class="fa-solid fa-award"></i><span x-text="lang==='pt'?'Prêmio':'Award'"></span>
+            </div>
+            <h3 class="news-hl" x-text="t('news.item2.headline')"></h3>
+            <p class="news-body">
+              <a class="nlink" href="https://esgetal.com.br" target="_blank" rel="noopener"
+                x-text="t('news.item2.link')"></a>
+              <span x-text="t('news.item2.body')"></span>
+              <a class="nlink" href="https://esgetal.com.br" target="_blank" rel="noopener"
+                x-text="t('news.item2.linkPDF')"></a>.
+            </p>
           </div>
+
+          <!-- Dynamic extra news slides -->
+          <template x-for="item in dynamicNewsItems" :key="item.id">
+            <div class="news-card cr-slide">
+              <div class="news-date">
+                <i class="fa-regular fa-calendar" style="margin-right:.35rem"></i>
+                <span x-text="(lang==='en'&&item.date?.en)?item.date.en:(item.date?.pt)||''"></span>
+              </div>
+              <h3 class="news-hl" x-text="(lang==='en'&&item.headline?.en)?item.headline.en:(item.headline?.pt)||''">
+              </h3>
+              <p class="news-body" x-text="(lang==='en'&&item.body?.en)?item.body.en:(item.body?.pt)||''"></p>
+              <template x-if="item.linkUrl">
+                <a class="nlink" :href="item.linkUrl" target="_blank" rel="noopener"
+                  x-text="(lang==='en'&&item.linkText?.en)?item.linkText.en:(item.linkText?.pt)||'Saiba mais'"
+                  style="margin-top:auto;display:block;padding-top:.75rem"></a>
+              </template>
+            </div>
+          </template>
+
+          <!-- Last slide: Newsletter card -->
+          <div class="nl-standalone cr-slide">
+            <div class="nl-badge">
+              <i class="fa-solid fa-envelope"></i>
+              <span x-text="t('news.nl.title')"></span>
+            </div>
+            <div class="nl-divider"></div>
+            <p class="nl-sub" x-text="t('news.nl.subtitle')"></p>
+
+            <div x-show="!newsletterSent">
+              <div class="nl-inp-wrap">
+                <i class="fa-solid fa-user nl-inp-ico"></i>
+                <input class="nl-inp" type="text" :placeholder="t('news.nl.namePh')" x-model="newsletterName"
+                  autocomplete="name">
+              </div>
+              <div class="nl-inp-wrap">
+                <i class="fa-solid fa-envelope nl-inp-ico"></i>
+                <input class="nl-inp" type="email" :placeholder="t('news.nl.emailPh')" x-model="newsletterEmail"
+                  @keydown.enter="submitNewsletter()" autocomplete="email">
+              </div>
+              <button class="nl-btn" @click="submitNewsletter()" style="margin-top:.2rem">
+                <i class="fa-solid fa-paper-plane" style="margin-right:.4rem"></i>
+                <span x-text="t('news.nl.btn')"></span>
+              </button>
+              <p class="nl-disc" x-text="t('news.nl.disclaimer')"></p>
+            </div>
+
+            <div class="nl-ok" x-show="newsletterSent">
+              <i class="fa-solid fa-circle-check"></i>
+              <div class="nl-ok-t" x-text="lang==='pt'?'Inscrição realizada!':\" You're subscribed!\""></div>
+              <div class="nl-ok-b" x-text="lang==='pt'?'Obrigado! Em breve você receberá nossas novidades.':\" Thank
+                you! You'll hear from us soon.\""></div>
+            </div>
+          </div>
+
+        </div><!-- /cr-track -->
+
+        <!-- Nav: centered with arrow + dots -->
+        <div class="cr-nav" style="margin-top:1.5rem">
+          <button class="cr-btn" data-prev aria-label="Anterior"><i class="fa-solid fa-chevron-left"></i></button>
+          <div class="cr-dots"></div>
+          <button class="cr-btn" data-next aria-label="Próximo"><i class="fa-solid fa-chevron-right"></i></button>
         </div>
 
-        <!-- RIGHT: standalone newsletter -->
-        <div class="nl-standalone">
-          <div class="nl-badge"><i class="fa-solid fa-envelope"></i><span x-text="t('news.nl.title')"></span></div>
-          <div class="nl-divider"></div>
-          <p class="nl-sub" x-text="t('news.nl.subtitle')"></p>
-
-          <div x-show="!newsletterSent">
-            <div class="nl-inp-wrap">
-              <i class="fa-solid fa-user nl-inp-ico"></i>
-              <input class="nl-inp" type="text" :placeholder="t('news.nl.namePh')" x-model="newsletterName"
-                autocomplete="name">
-            </div>
-            <div class="nl-inp-wrap">
-              <i class="fa-solid fa-envelope nl-inp-ico"></i>
-              <input class="nl-inp" type="email" :placeholder="t('news.nl.emailPh')" x-model="newsletterEmail"
-                @keydown.enter="submitNewsletter()" autocomplete="email">
-            </div>
-            <button class="nl-btn" @click="submitNewsletter()" style="margin-top:.2rem">
-              <i class="fa-solid fa-paper-plane" style="margin-right:.4rem"></i>
-              <span x-text="t('news.nl.btn')"></span>
-            </button>
-            <p class="nl-disc" x-text="t('news.nl.disclaimer')"></p>
-          </div>
-
-          <div class="nl-ok" x-show="newsletterSent">
-            <i class="fa-solid fa-circle-check"></i>
-            <div class="nl-ok-t" x-text="lang==='pt'?'Inscrição realizada!':\" You're subscribed!\""></div>
-            <div class="nl-ok-b" x-text="lang==='pt'?'Obrigado! Em breve você receberá nossas novidades.':\" Thank you!
-              You'll hear from us soon.\""></div>
-          </div>
-        </div>
-
-      </div><!-- /news-layout -->
+      </div><!-- /cr-wrap #news-cr -->
     </div>
   </section>
 
@@ -2635,78 +2898,59 @@
       <span class="sec-lbl" :style="darkMode?'color:#a78bfa':'color:var(--purple)'" x-text="t('research.title')"></span>
       <h2 class="sec-h" :style="darkMode?'color:#fff':''" x-text="t('research.title')"></h2>
       <div class="divider" style="background:var(--purple)"></div>
-      <div class="res-card">
-        <div class="res-body">
-          <div class="res-date"><i class="fa-regular fa-calendar" style="margin-right:.35rem"></i><span
-              x-text="t('research.item1.date')"></span></div>
-          <h3 class="res-hl" x-text="t('research.item1.headline')"></h3>
-          <p class="res-auth" x-text="t('research.item1.author')"></p>
-          <a href="https://docs.google.com/forms/d/16YldwC9CDqSbX7rS9Wfwnk53Ekpcuga0AmE-UX3EhKQ/viewform"
-            target="_blank" rel="noopener" class="btn btn-purple" style="margin-bottom:1.625rem;display:inline-flex"><i
-              class="fa-solid fa-file-lines"></i><span x-text="t('research.item1.cta')"></span></a>
-          <p class="res-txt" x-text="t('research.item1.body1')"></p>
-          <p class="res-txt" x-text="t('research.item1.body2')"></p>
-          <p class="res-txt" x-text="t('research.item1.body3')"></p>
-        </div>
-        <div class="res-img-col"><img src="https://esgetal.com.br/_assets/media/9fc7ceb1990dd3185b72598a54da4d5a.jpg"
-            alt="Pesquisa ESG e Tal" class="res-img" loading="lazy"></div>
-      </div>
 
-      <!-- ── Artigos extras (Admin CMS) ── -->
-      <template x-if="dynamicResearchItems && dynamicResearchItems.length > 0">
-        <div class="cr-wrap" id="dyn-res-cr" style="margin-top:2rem"
-          x-effect="dynamicResearchItems; $nextTick(()=>window.CMS&&CMS.initCarousel('dyn-res-cr',{desktop:1,tablet:1,autoplay:6000}))">
-          <div class="cr-track">
-            <template x-for="item in dynamicResearchItems" :key="item.id">
-              <div class="cr-slide"
-                style="display:grid;grid-template-columns:1fr 200px;border-radius:var(--rad);overflow:hidden">
-                <div class="res-body">
-                  <div class="res-date">
-                    <i class="fa-regular fa-calendar" style="margin-right:.35rem"></i>
-                    <span
-                      x-text="(lang==='en'&&item.date&&item.date.en)?item.date.en:(item.date&&item.date.pt)||''"></span>
-                  </div>
-                  <h3 class="res-hl"
-                    x-text="(lang==='en'&&item.headline&&item.headline.en)?item.headline.en:(item.headline&&item.headline.pt)||''">
-                  </h3>
-                  <p class="res-auth"
-                    x-text="(lang==='en'&&item.author&&item.author.en)?item.author.en:(item.author&&item.author.pt)||''">
-                  </p>
-                  <template x-if="item.ctaUrl">
-                    <a :href="item.ctaUrl" target="_blank" rel="noopener" class="btn btn-purple"
-                      style="margin-bottom:1.25rem;display:inline-flex">
-                      <i class="fa-solid fa-file-lines"></i>
-                      <span
-                        x-text="(lang==='en'&&item.ctaText&&item.ctaText.en)?item.ctaText.en:(item.ctaText&&item.ctaText.pt)||'Acessar'"></span>
-                    </a>
-                  </template>
-                  <p class="res-txt"
-                    x-text="(lang==='en'&&item.body&&item.body.en)?item.body.en:(item.body&&item.body.pt)||''"></p>
-                </div>
-                <!-- image column -->
-                <div class="dyn-res-img-col">
-                  <template x-if="item.imgUrl">
-                    <img :src="item.imgUrl" :alt="(item.headline&&item.headline.pt)||'Pesquisa'" class="dyn-res-img"
-                      loading="lazy">
-                  </template>
-                  <template x-if="!item.imgUrl">
-                    <div class="dyn-res-img-ph">
-                      <i class="fa-solid fa-microscope"
-                        style="font-size:1.6rem;color:var(--purple);margin-bottom:.5rem"></i>
-                      <span x-text="lang==='pt'?'Imagem em breve':'Coming soon'"></span>
-                    </div>
-                  </template>
-                </div>
+      <!-- Unified research carousel: fixed item + dynamic · 3 per view -->
+      <div class="cr-wrap" id="research-cr"
+        x-effect="lang; $nextTick(()=>window.CMS&&CMS.initCarousel('research-cr',{desktop:3,tablet:2,mobile:1,autoplay:6500}))">
+        <div class="cr-track">
+
+          <!-- Fixed featured article -->
+          <div class="res-card-sm cr-slide">
+            <div class="res-date"><i class="fa-regular fa-calendar" style="margin-right:.35rem"></i>
+              <span x-text="t('research.item1.date')"></span>
+            </div>
+            <h3 class="res-hl" x-text="t('research.item1.headline')"></h3>
+            <p class="res-auth" x-text="t('research.item1.author')"></p>
+            <p class="res-txt" x-text="t('research.item1.body1')" style="flex:1"></p>
+            <a href="https://docs.google.com/forms/d/16YldwC9CDqSbX7rS9Wfwnk53Ekpcuga0AmE-UX3EhKQ/viewform"
+              target="_blank" rel="noopener" class="btn btn-purple"
+              style="margin-top:1.25rem;display:inline-flex;align-self:flex-start">
+              <i class="fa-solid fa-file-lines"></i>
+              <span x-text="t('research.item1.cta')"></span>
+            </a>
+          </div>
+
+          <!-- Dynamic extra articles -->
+          <template x-for="item in dynamicResearchItems" :key="item.id">
+            <div class="res-card-sm cr-slide">
+              <div class="res-date">
+                <i class="fa-regular fa-calendar" style="margin-right:.35rem"></i>
+                <span x-text="(lang==='en'&&item.date?.en)?item.date.en:(item.date?.pt)||''"></span>
               </div>
-            </template>
-          </div>
-          <div class="cr-nav" style="justify-content:flex-start;margin-top:1rem">
-            <button class="cr-btn" data-prev aria-label="Anterior"><i class="fa-solid fa-chevron-left"></i></button>
-            <div class="cr-dots"></div>
-            <button class="cr-btn" data-next aria-label="Próximo"><i class="fa-solid fa-chevron-right"></i></button>
-          </div>
+              <h3 class="res-hl" x-text="(lang==='en'&&item.headline?.en)?item.headline.en:(item.headline?.pt)||''">
+              </h3>
+              <p class="res-auth" x-text="(lang==='en'&&item.author?.en)?item.author.en:(item.author?.pt)||''"></p>
+              <p class="res-txt" x-text="(lang==='en'&&item.body?.en)?item.body.en:(item.body?.pt)||''" style="flex:1">
+              </p>
+              <template x-if="item.ctaUrl">
+                <a :href="item.ctaUrl" target="_blank" rel="noopener" class="btn btn-purple"
+                  style="margin-top:1.25rem;display:inline-flex;align-self:flex-start">
+                  <i class="fa-solid fa-file-lines"></i>
+                  <span x-text="(lang==='en'&&item.ctaText?.en)?item.ctaText.en:(item.ctaText?.pt)||'Acessar'"></span>
+                </a>
+              </template>
+            </div>
+          </template>
+
+        </div><!-- /cr-track -->
+
+        <div class="cr-nav" style="margin-top:1.5rem">
+          <button class="cr-btn" data-prev aria-label="Anterior"><i class="fa-solid fa-chevron-left"></i></button>
+          <div class="cr-dots"></div>
+          <button class="cr-btn" data-next aria-label="Próximo"><i class="fa-solid fa-chevron-right"></i></button>
         </div>
-      </template>
+      </div><!-- /cr-wrap #research-cr -->
+
     </div>
   </section>
 
@@ -2772,12 +3016,11 @@
         window.CMS = window.CMS || {};
 
         CMS.initCarousel = function (id, opts) {
-          opts = Object.assign({ desktop: 4, tablet: 2, autoplay: 0 }, opts);
+          opts = Object.assign({ desktop: 2, tablet: 2, mobile: 1, autoplay: 0 }, opts);
           var wrap = document.getElementById(id);
           if (!wrap) return;
 
-          // Destroy previous instance
-          if (wrap._cr) { clearInterval(wrap._cr.autoTimer); }
+          if (wrap._cr) { clearInterval(wrap._cr.autoTimer); if (wrap._cr.ro) wrap._cr.ro.disconnect(); }
           wrap._cr = {};
 
           var track = wrap.querySelector('.cr-track');
@@ -2791,7 +3034,7 @@
 
           function pv() {
             var w = wrap.offsetWidth;
-            var n = w > 1100 ? opts.desktop : w > 640 ? opts.tablet : 1;
+            var n = w > 1100 ? opts.desktop : w > 640 ? opts.tablet : (opts.mobile || 1);
             return Math.max(1, Math.min(n, slides().length));
           }
 
@@ -2838,7 +3081,7 @@
               var prev = track.style.transition;
               track.style.transition = 'none';
               track.style.transform = 'translateX(-' + offset + 'px)';
-              track.offsetHeight; // force reflow
+              track.offsetHeight;
               track.style.transition = prev;
             } else {
               track.style.transform = 'translateX(-' + offset + 'px)';
@@ -2863,7 +3106,7 @@
             }
           }
 
-          // Clone buttons to remove old listeners
+          // Clone buttons to clear old listeners
           var pOld = wrap.querySelector('[data-prev]');
           var nOld = wrap.querySelector('[data-next]');
           if (pOld) { var pNew = pOld.cloneNode(true); pOld.parentNode.replaceChild(pNew, pOld); }
@@ -2874,24 +3117,29 @@
           if (nEl) nEl.addEventListener('click', function () { resetAuto(); cur >= maxCur() ? go(0) : go(cur + 1); });
 
           // Touch / drag
-          var tx = 0, dragging = false;
-          track.addEventListener('pointerdown', function (e) { tx = e.clientX; dragging = true; });
+          var tx = 0, ty = 0, dragging = false;
+          track.addEventListener('pointerdown', function (e) { tx = e.clientX; ty = e.clientY; dragging = true; track.setPointerCapture(e.pointerId); });
           track.addEventListener('pointerup', function (e) {
             if (!dragging) return;
             dragging = false;
-            var dx = e.clientX - tx;
-            if (Math.abs(dx) > 44) { resetAuto(); dx < 0 ? go(cur + 1) : go(cur - 1); }
+            var dx = e.clientX - tx, dy = e.clientY - ty;
+            if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+              resetAuto(); dx < 0 ? go(cur + 1) : go(cur - 1);
+            }
           });
           track.addEventListener('pointerleave', function () { dragging = false; });
           track.addEventListener('pointercancel', function () { dragging = false; });
 
-          // Pause on hover
+          // Prevent accidental click after drag
+          track.addEventListener('click', function (e) {
+            if (Math.abs(e.clientX - tx) > 10) e.stopPropagation();
+          }, true);
+
           if (opts.autoplay) {
             wrap.addEventListener('mouseenter', function () { clearInterval(autoTimer); });
             wrap.addEventListener('mouseleave', resetAuto);
           }
 
-          // Resize observer
           if (window.ResizeObserver) {
             var rTimer;
             var ro = new ResizeObserver(function () {
