@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────────────────────
-//  admin.js  —  ESG e Tal CMS  v2
+//  admin.js  —  ESG e Tal CMS  v3
 //  Easter egg: Ctrl + Shift + A
 // ─────────────────────────────────────────────────────────────────────────────
 (function () {
@@ -11,197 +11,200 @@
     open: false, loggedIn: false,
     tab: 'news', editLang: 'pt',
     db: null, auth: null, dbData: null,
+    // dynamic news/research editing
     editingId: null, editingType: null,
+    // areas editing
+    editingArea: null,   // area key e.g. 'env', null = none
+    editingSubIdx: null, // subtopic index (-1 = new), null = none
     confirmCb: null,
   };
 
-  // ╔═══════════════════════════╗
-  // ║  CSS                      ║
-  // ╚═══════════════════════════╝
+  // ╔══════════════════════════════════════════════════════════════════════════╗
+  // ║  CSS                                                                     ║
+  // ╚══════════════════════════════════════════════════════════════════════════╝
   function injectCSS() {
     const s = document.createElement('style');
     s.id = 'adm-styles';
     s.textContent = `
-#adm-backdrop *, #adm-backdrop *::before, #adm-backdrop *::after { box-sizing:border-box; }
-#adm-backdrop {
-  position:fixed; inset:0; z-index:9990;
-  background:rgba(3,8,18,.9);
-  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
-  display:none; align-items:center; justify-content:center;
-  font-family:'DM Sans',sans-serif;
-}
-#adm-backdrop.adm-open { display:flex; }
-#adm-panel {
-  background:#071524;
-  border:1px solid rgba(16,185,129,.2);
-  border-radius:1.25rem;
-  width:min(1200px,96vw); height:min(820px,95vh);
-  display:flex; flex-direction:column; overflow:hidden;
-  box-shadow:0 48px 120px rgba(0,0,0,.75),0 0 0 1px rgba(16,185,129,.06);
-  animation:adm-pop .28s cubic-bezier(.34,1.2,.64,1) both;
-  position:relative;
-}
-@keyframes adm-pop { from{opacity:0;transform:scale(.93) translateY(16px)} to{opacity:1;transform:scale(1) translateY(0)} }
+#adm-backdrop*,#adm-backdrop *::before,#adm-backdrop *::after{box-sizing:border-box}
+#adm-backdrop{position:fixed;inset:0;z-index:9990;background:rgba(3,8,18,.9);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:none;align-items:center;justify-content:center;font-family:'DM Sans',sans-serif}
+#adm-backdrop.adm-open{display:flex}
+#adm-panel{background:#071524;border:1px solid rgba(16,185,129,.2);border-radius:1.25rem;width:min(1240px,96vw);height:min(840px,95vh);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 48px 120px rgba(0,0,0,.75),0 0 0 1px rgba(16,185,129,.06);animation:adm-pop .28s cubic-bezier(.34,1.2,.64,1) both;position:relative}
+@keyframes adm-pop{from{opacity:0;transform:scale(.93) translateY(16px)}to{opacity:1;transform:scale(1) translateY(0)}}
 
 /* Header */
-#adm-header {
-  display:flex; align-items:center; gap:.875rem;
-  padding:.85rem 1.375rem;
-  border-bottom:1px solid rgba(255,255,255,.065);
-  flex-shrink:0; background:rgba(255,255,255,.018);
-}
-.adm-logo { display:flex; align-items:center; gap:.5rem; font-family:'Playfair Display',serif; font-size:1rem; font-weight:700; color:#e4edf6; flex-shrink:0; }
-.adm-logo-dot { width:8px; height:8px; border-radius:50%; background:#10B981; box-shadow:0 0 8px rgba(16,185,129,.9); animation:adm-pulse 2.4s ease-in-out infinite; }
-@keyframes adm-pulse { 0%,100%{box-shadow:0 0 5px rgba(16,185,129,.6)} 50%{box-shadow:0 0 14px rgba(16,185,129,1)} }
-.adm-chip { padding:.16rem .55rem; border-radius:99px; background:rgba(16,185,129,.1); border:1px solid rgba(16,185,129,.25); color:#10B981; font-size:.65rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; flex-shrink:0; }
-.adm-status-bar { flex:1; min-width:0; display:flex; align-items:center; justify-content:flex-end; gap:.5rem; }
-.adm-sdot { width:6px; height:6px; border-radius:50%; flex-shrink:0; background:rgba(255,255,255,.2); transition:background .3s; }
-.adm-sdot.ok  { background:#10B981; box-shadow:0 0 6px rgba(16,185,129,.7); }
-.adm-sdot.err { background:#f87171; }
-.adm-sdot.info{ background:#60a5fa; }
-.adm-stxt { font-size:.72rem; color:rgba(255,255,255,.3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:240px; }
-.adm-stxt.ok  { color:#10B981; } .adm-stxt.err { color:#f87171; } .adm-stxt.info { color:#60a5fa; }
-.adm-hbtn { width:30px; height:30px; border-radius:.45rem; border:1px solid rgba(255,255,255,.09); background:transparent; color:rgba(255,255,255,.45); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:.78rem; transition:all .18s; flex-shrink:0; }
-.adm-hbtn:hover { border-color:rgba(255,255,255,.22); color:#fff; background:rgba(255,255,255,.07); }
-.adm-hbtn.cls:hover { border-color:rgba(248,113,113,.4); color:#f87171; background:rgba(248,113,113,.07); }
+#adm-header{display:flex;align-items:center;gap:.875rem;padding:.85rem 1.375rem;border-bottom:1px solid rgba(255,255,255,.065);flex-shrink:0;background:rgba(255,255,255,.018)}
+.adm-logo{display:flex;align-items:center;gap:.5rem;font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:#e4edf6;flex-shrink:0}
+.adm-logo-dot{width:8px;height:8px;border-radius:50%;background:#10B981;box-shadow:0 0 8px rgba(16,185,129,.9);animation:adm-pulse 2.4s ease-in-out infinite}
+@keyframes adm-pulse{0%,100%{box-shadow:0 0 5px rgba(16,185,129,.6)}50%{box-shadow:0 0 14px rgba(16,185,129,1)}}
+.adm-chip{padding:.16rem .55rem;border-radius:99px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.25);color:#10B981;font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;flex-shrink:0}
+.adm-sbar{flex:1;min-width:0;display:flex;align-items:center;justify-content:flex-end;gap:.5rem}
+.adm-sdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:rgba(255,255,255,.2);transition:background .3s}
+.adm-sdot.ok{background:#10B981;box-shadow:0 0 6px rgba(16,185,129,.7)}.adm-sdot.err{background:#f87171}.adm-sdot.info{background:#60a5fa}
+.adm-stxt{font-size:.72rem;color:rgba(255,255,255,.3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:240px}
+.adm-stxt.ok{color:#10B981}.adm-stxt.err{color:#f87171}.adm-stxt.info{color:#60a5fa}
+.adm-hbtn{width:30px;height:30px;border-radius:.45rem;border:1px solid rgba(255,255,255,.09);background:transparent;color:rgba(255,255,255,.45);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.78rem;transition:all .18s;flex-shrink:0}
+.adm-hbtn:hover{border-color:rgba(255,255,255,.22);color:#fff;background:rgba(255,255,255,.07)}
+.adm-hbtn.cls:hover{border-color:rgba(248,113,113,.4);color:#f87171;background:rgba(248,113,113,.07)}
 
-/* Body */
-#adm-body { display:flex; flex:1; min-height:0; }
+/* Body layout */
+#adm-body{display:flex;flex:1;min-height:0}
 
 /* Sidebar */
-#adm-sidebar { width:196px; flex-shrink:0; border-right:1px solid rgba(255,255,255,.06); display:flex; flex-direction:column; padding:.875rem .625rem; background:rgba(255,255,255,.012); }
-.adm-nlbl { font-size:.6rem; font-weight:700; letter-spacing:.15em; text-transform:uppercase; color:rgba(255,255,255,.2); padding:.5rem .625rem .25rem; }
-.adm-nbtn { display:flex; align-items:center; gap:.55rem; padding:.55rem .75rem; border-radius:.5rem; border:none; background:transparent; color:rgba(255,255,255,.42); font-size:.8rem; font-weight:500; cursor:pointer; transition:all .18s; font-family:'DM Sans',sans-serif; text-align:left; width:100%; margin-bottom:.1rem; }
-.adm-nbtn i { font-size:.76rem; width:15px; text-align:center; flex-shrink:0; }
-.adm-nbtn:hover { background:rgba(255,255,255,.055); color:rgba(255,255,255,.72); }
-.adm-nbtn.on { background:rgba(16,185,129,.1); color:#10B981; border:1px solid rgba(16,185,129,.18); }
-.adm-nbtn.on i { color:#10B981; }
-.adm-sfoot { margin-top:auto; padding-top:.75rem; border-top:1px solid rgba(255,255,255,.06); }
-.adm-utxt { font-size:.68rem; color:rgba(255,255,255,.25); padding:.3rem .625rem .45rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#adm-sidebar{width:200px;flex-shrink:0;border-right:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;padding:.875rem .625rem;background:rgba(255,255,255,.012)}
+.adm-nlbl{font-size:.6rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.2);padding:.5rem .625rem .25rem}
+.adm-nbtn{display:flex;align-items:center;gap:.55rem;padding:.55rem .75rem;border-radius:.5rem;border:none;background:transparent;color:rgba(255,255,255,.42);font-size:.8rem;font-weight:500;cursor:pointer;transition:all .18s;font-family:'DM Sans',sans-serif;text-align:left;width:100%;margin-bottom:.1rem}
+.adm-nbtn i{font-size:.76rem;width:15px;text-align:center;flex-shrink:0}
+.adm-nbtn:hover{background:rgba(255,255,255,.055);color:rgba(255,255,255,.72)}
+.adm-nbtn.on{background:rgba(16,185,129,.1);color:#10B981;border:1px solid rgba(16,185,129,.18)}
+.adm-nbtn.on i{color:#10B981}
+.adm-sfoot{margin-top:auto;padding-top:.75rem;border-top:1px solid rgba(255,255,255,.06)}
+.adm-utxt{font-size:.68rem;color:rgba(255,255,255,.25);padding:.3rem .625rem .45rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 /* Content */
-#adm-content { flex:1; min-width:0; display:flex; flex-direction:column; overflow:hidden; }
-.adm-chdr { padding:.95rem 1.375rem .8rem; border-bottom:1px solid rgba(255,255,255,.06); display:flex; align-items:center; gap:.875rem; flex-shrink:0; }
-.adm-ctitle { font-family:'Playfair Display',serif; font-size:1.05rem; font-weight:700; color:#e4edf6; }
-.adm-cdesc  { font-size:.73rem; color:rgba(255,255,255,.3); margin-top:.08rem; }
-.adm-lgrp   { display:flex; gap:.2rem; margin-left:auto; }
-.adm-lbtn   { padding:.22rem .55rem; border-radius:.35rem; border:1px solid rgba(255,255,255,.09); background:transparent; color:rgba(255,255,255,.35); font-size:.68rem; font-weight:700; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all .18s; text-transform:uppercase; letter-spacing:.06em; }
-.adm-lbtn.on { background:rgba(16,185,129,.14); border-color:rgba(16,185,129,.32); color:#10B981; }
+#adm-content{flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden}
+.adm-chdr{padding:.95rem 1.375rem .8rem;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;gap:.875rem;flex-shrink:0}
+.adm-ctitle{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:#e4edf6}
+.adm-cdesc{font-size:.73rem;color:rgba(255,255,255,.3);margin-top:.08rem}
+.adm-lgrp{display:flex;gap:.2rem;margin-left:auto}
+.adm-lbtn{padding:.22rem .55rem;border-radius:.35rem;border:1px solid rgba(255,255,255,.09);background:transparent;color:rgba(255,255,255,.35);font-size:.68rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .18s;text-transform:uppercase;letter-spacing:.06em}
+.adm-lbtn.on{background:rgba(16,185,129,.14);border-color:rgba(16,185,129,.32);color:#10B981}
 
 /* Scroll */
-.adm-scroll { flex:1; overflow-y:auto; padding:1.125rem 1.375rem 2rem; }
-.adm-scroll::-webkit-scrollbar { width:3px; }
-.adm-scroll::-webkit-scrollbar-thumb { background:rgba(255,255,255,.1); border-radius:99px; }
+.adm-scroll{flex:1;overflow-y:auto;padding:1.125rem 1.375rem 2rem}
+.adm-scroll::-webkit-scrollbar{width:3px}
+.adm-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:99px}
 
 /* Accordion */
-.adm-acc { border:1px solid rgba(255,255,255,.07); border-radius:.75rem; margin-bottom:.75rem; overflow:hidden; }
-.adm-ahdr { display:flex; align-items:center; gap:.625rem; padding:.8rem 1rem; cursor:pointer; background:rgba(255,255,255,.022); user-select:none; transition:background .18s; }
-.adm-ahdr:hover { background:rgba(255,255,255,.045); }
-.adm-ahdr.on { background:rgba(16,185,129,.055); border-bottom:1px solid rgba(255,255,255,.06); }
-.adm-aico { width:28px; height:28px; border-radius:.4rem; flex-shrink:0; background:rgba(16,185,129,.1); border:1px solid rgba(16,185,129,.18); display:flex; align-items:center; justify-content:center; font-size:.72rem; color:#10B981; }
-.adm-atitle { font-size:.82rem; font-weight:600; color:rgba(255,255,255,.78); flex:1; }
-.adm-achev  { font-size:.65rem; color:rgba(255,255,255,.25); transition:transform .2s; }
-.adm-ahdr.on .adm-achev { transform:rotate(180deg); color:#10B981; }
-.adm-abody { padding:1rem; display:none; }
-.adm-abody.on { display:block; }
+.adm-acc{border:1px solid rgba(255,255,255,.07);border-radius:.75rem;margin-bottom:.75rem;overflow:hidden}
+.adm-ahdr{display:flex;align-items:center;gap:.625rem;padding:.8rem 1rem;cursor:pointer;background:rgba(255,255,255,.022);user-select:none;transition:background .18s}
+.adm-ahdr:hover{background:rgba(255,255,255,.045)}
+.adm-ahdr.on{background:rgba(16,185,129,.055);border-bottom:1px solid rgba(255,255,255,.06)}
+.adm-aico{width:28px;height:28px;border-radius:.4rem;flex-shrink:0;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.18);display:flex;align-items:center;justify-content:center;font-size:.72rem;color:#10B981}
+.adm-atitle{font-size:.82rem;font-weight:600;color:rgba(255,255,255,.78);flex:1}
+.adm-achev{font-size:.65rem;color:rgba(255,255,255,.25);transition:transform .2s}
+.adm-ahdr.on .adm-achev{transform:rotate(180deg);color:#10B981}
+.adm-abody{padding:1rem;display:none}
+.adm-abody.on{display:block}
+
+/* Inner accordion (subtopics within area) */
+.adm-sub-acc{border:1px solid rgba(255,255,255,.065);border-radius:.55rem;margin-bottom:.5rem;overflow:hidden}
+.adm-sub-hdr{display:flex;align-items:center;gap:.5rem;padding:.6rem .875rem;cursor:pointer;background:rgba(255,255,255,.018);user-select:none;transition:background .18s}
+.adm-sub-hdr:hover{background:rgba(255,255,255,.035)}
+.adm-sub-hdr.on{background:rgba(16,185,129,.04);border-bottom:1px solid rgba(255,255,255,.05)}
+.adm-sub-num{width:22px;height:22px;border-radius:.3rem;flex-shrink:0;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;color:rgba(255,255,255,.4)}
+.adm-sub-hdr.on .adm-sub-num{background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.2);color:#10B981}
+.adm-sub-title{font-size:.78rem;font-weight:500;color:rgba(255,255,255,.6);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.adm-sub-body{padding:.875rem;display:none}
+.adm-sub-body.on{display:block}
+.adm-sub-chevron{font-size:.6rem;color:rgba(255,255,255,.22);transition:transform .2s;flex-shrink:0}
+.adm-sub-hdr.on .adm-sub-chevron{transform:rotate(180deg);color:#10B981}
 
 /* Fields */
-.adm-field { margin-bottom:.75rem; }
-.adm-label { display:block; font-size:.68rem; font-weight:600; color:rgba(255,255,255,.35); margin-bottom:.25rem; letter-spacing:.04em; }
-.adm-label small { color:rgba(255,255,255,.18); font-weight:400; margin-left:.2rem; }
-.adm-input, .adm-textarea { width:100%; background:rgba(255,255,255,.035); border:1px solid rgba(255,255,255,.09); border-radius:.45rem; color:rgba(255,255,255,.82); font-family:'DM Sans',sans-serif; font-size:.8rem; line-height:1.55; padding:.5rem .7rem; transition:border-color .18s,background .18s; outline:none; }
-.adm-input::placeholder, .adm-textarea::placeholder { color:rgba(255,255,255,.16); }
-.adm-input:focus, .adm-textarea:focus { border-color:rgba(16,185,129,.45); background:rgba(16,185,129,.035); }
-.adm-textarea { resize:vertical; min-height:68px; }
-.adm-r2 { display:grid; grid-template-columns:1fr 1fr; gap:.625rem; }
-.adm-r3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:.625rem; }
+.adm-field{margin-bottom:.75rem}
+.adm-label{display:block;font-size:.68rem;font-weight:600;color:rgba(255,255,255,.35);margin-bottom:.25rem;letter-spacing:.04em}
+.adm-label small{color:rgba(255,255,255,.18);font-weight:400;margin-left:.2rem}
+.adm-input,.adm-textarea{width:100%;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.09);border-radius:.45rem;color:rgba(255,255,255,.82);font-family:'DM Sans',sans-serif;font-size:.8rem;line-height:1.55;padding:.5rem .7rem;transition:border-color .18s,background .18s;outline:none}
+.adm-input::placeholder,.adm-textarea::placeholder{color:rgba(255,255,255,.16)}
+.adm-input:focus,.adm-textarea:focus{border-color:rgba(16,185,129,.45);background:rgba(16,185,129,.035)}
+.adm-textarea{resize:vertical;min-height:68px}
+.adm-r2{display:grid;grid-template-columns:1fr 1fr;gap:.625rem}
+.adm-r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.625rem}
+
+/* Color picker row */
+.adm-colorfield{display:flex;align-items:center;gap:.5rem}
+.adm-cpick{width:36px;height:36px;border-radius:.4rem;border:1px solid rgba(255,255,255,.12);cursor:pointer;flex-shrink:0;padding:0;background:transparent;overflow:hidden}
+.adm-cpick::-webkit-color-swatch-wrapper{padding:2px}
+.adm-cpick::-webkit-color-swatch{border-radius:.25rem;border:none}
+.adm-icon-preview{width:36px;height:36px;border-radius:.4rem;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.18);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;transition:all .2s}
 
 /* Buttons */
-.adm-btn { display:inline-flex; align-items:center; gap:.38rem; padding:.5rem 1.1rem; border-radius:.45rem; border:none; font-family:'DM Sans',sans-serif; font-size:.78rem; font-weight:600; cursor:pointer; transition:all .18s; white-space:nowrap; }
-.adm-pri  { background:#10B981; color:#fff; }
-.adm-pri:hover  { background:#059669; transform:translateY(-1px); box-shadow:0 5px 18px rgba(16,185,129,.32); }
-.adm-pri:disabled { background:rgba(16,185,129,.3); cursor:not-allowed; transform:none !important; box-shadow:none !important; }
-.adm-gho  { background:rgba(255,255,255,.055); border:1px solid rgba(255,255,255,.1); color:rgba(255,255,255,.6); }
-.adm-gho:hover  { background:rgba(255,255,255,.1); color:#fff; }
-.adm-red  { background:rgba(248,113,113,.08); border:1px solid rgba(248,113,113,.22); color:#f87171; }
-.adm-red:hover  { background:rgba(248,113,113,.18); border-color:rgba(248,113,113,.45); transform:translateY(-1px); }
-.adm-add  { background:rgba(16,185,129,.07); border:1px dashed rgba(16,185,129,.35); color:#10B981; width:100%; justify-content:center; padding:.6rem; border-radius:.5rem; margin-top:.625rem; }
-.adm-add:hover { background:rgba(16,185,129,.14); }
-.adm-acts { display:flex; gap:.45rem; padding-top:.875rem; flex-wrap:wrap; align-items:center; }
+.adm-btn{display:inline-flex;align-items:center;gap:.38rem;padding:.5rem 1.1rem;border-radius:.45rem;border:none;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .18s;white-space:nowrap}
+.adm-pri{background:#10B981;color:#fff}
+.adm-pri:hover{background:#059669;transform:translateY(-1px);box-shadow:0 5px 18px rgba(16,185,129,.32)}
+.adm-pri:disabled{background:rgba(16,185,129,.3);cursor:not-allowed;transform:none!important;box-shadow:none!important}
+.adm-gho{background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.6)}
+.adm-gho:hover{background:rgba(255,255,255,.1);color:#fff}
+.adm-red{background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.22);color:#f87171}
+.adm-red:hover{background:rgba(248,113,113,.18);border-color:rgba(248,113,113,.45);transform:translateY(-1px)}
+.adm-add{background:rgba(16,185,129,.07);border:1px dashed rgba(16,185,129,.35);color:#10B981;width:100%;justify-content:center;padding:.6rem;border-radius:.5rem;margin-top:.625rem}
+.adm-add:hover{background:rgba(16,185,129,.14)}
+.adm-acts{display:flex;gap:.45rem;padding-top:.875rem;flex-wrap:wrap;align-items:center}
 
-/* Item list */
-.adm-ilist { display:flex; flex-direction:column; gap:.4rem; margin-bottom:.5rem; }
-.adm-irow  { display:flex; align-items:center; gap:.625rem; padding:.625rem .875rem; border-radius:.55rem; border:1px solid rgba(255,255,255,.07); background:rgba(255,255,255,.025); transition:all .18s; }
-.adm-irow:hover { border-color:rgba(255,255,255,.13); background:rgba(255,255,255,.05); }
-.adm-irow.on { border-color:rgba(16,185,129,.32); background:rgba(16,185,129,.055); }
-.adm-iico  { width:30px; height:30px; border-radius:.4rem; flex-shrink:0; background:rgba(16,185,129,.08); border:1px solid rgba(16,185,129,.18); display:flex; align-items:center; justify-content:center; font-size:.72rem; color:#10B981; }
-.adm-imeta { flex:1; min-width:0; cursor:pointer; }
-.adm-ihl   { font-size:.78rem; font-weight:600; color:rgba(255,255,255,.75); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.adm-idt   { font-size:.66rem; color:rgba(255,255,255,.28); margin-top:.06rem; }
-.adm-ibts  { display:flex; gap:.3rem; flex-shrink:0; }
-.adm-ibtn  { width:26px; height:26px; border-radius:.35rem; border:1px solid rgba(255,255,255,.08); background:transparent; color:rgba(255,255,255,.3); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:.65rem; transition:all .18s; }
-.adm-ibtn.e:hover { border-color:rgba(16,185,129,.4); color:#10B981; background:rgba(16,185,129,.08); }
-.adm-ibtn.d:hover { border-color:rgba(248,113,113,.4); color:#f87171; background:rgba(248,113,113,.07); }
-.adm-empty { font-size:.76rem; color:rgba(255,255,255,.25); padding:.5rem 0 .875rem; font-style:italic; }
+/* Item list (dyn news/research) */
+.adm-ilist{display:flex;flex-direction:column;gap:.4rem;margin-bottom:.5rem}
+.adm-irow{display:flex;align-items:center;gap:.625rem;padding:.625rem .875rem;border-radius:.55rem;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.025);transition:all .18s}
+.adm-irow:hover{border-color:rgba(255,255,255,.13);background:rgba(255,255,255,.05)}
+.adm-irow.on{border-color:rgba(16,185,129,.32);background:rgba(16,185,129,.055)}
+.adm-iico{width:30px;height:30px;border-radius:.4rem;flex-shrink:0;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.18);display:flex;align-items:center;justify-content:center;font-size:.72rem;color:#10B981}
+.adm-imeta{flex:1;min-width:0;cursor:pointer}
+.adm-ihl{font-size:.78rem;font-weight:600;color:rgba(255,255,255,.75);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.adm-idt{font-size:.66rem;color:rgba(255,255,255,.28);margin-top:.06rem}
+.adm-ibts{display:flex;gap:.3rem;flex-shrink:0}
+.adm-ibtn{width:26px;height:26px;border-radius:.35rem;border:1px solid rgba(255,255,255,.08);background:transparent;color:rgba(255,255,255,.3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.65rem;transition:all .18s}
+.adm-ibtn.e:hover{border-color:rgba(16,185,129,.4);color:#10B981;background:rgba(16,185,129,.08)}
+.adm-ibtn.d:hover{border-color:rgba(248,113,113,.4);color:#f87171;background:rgba(248,113,113,.07)}
+.adm-empty{font-size:.76rem;color:rgba(255,255,255,.25);padding:.5rem 0 .875rem;font-style:italic}
 
-/* Edit panel */
-.adm-epanel { border:1px solid rgba(16,185,129,.18); border-radius:.625rem; padding:1rem; margin-top:.5rem; background:rgba(16,185,129,.04); }
-.adm-etitle { font-size:.68rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#10B981; margin-bottom:.875rem; display:flex; align-items:center; gap:.4rem; }
+/* Edit panel (dyn items) */
+.adm-epanel{border:1px solid rgba(16,185,129,.18);border-radius:.625rem;padding:1rem;margin-top:.5rem;background:rgba(16,185,129,.04)}
+.adm-etitle{font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#10B981;margin-bottom:.875rem;display:flex;align-items:center;gap:.4rem}
 
-/* HR */
-.adm-hr { border:none; border-top:1px solid rgba(255,255,255,.06); margin:.875rem 0; }
+/* Section divider */
+.adm-hr{border:none;border-top:1px solid rgba(255,255,255,.06);margin:.875rem 0}
+.adm-section-lbl{font-size:.62rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:.625rem;display:flex;align-items:center;gap:.4rem}
 
 /* Login */
-#adm-login { flex:1; display:flex; align-items:center; justify-content:center; flex-direction:column; padding:2rem; }
-.adm-lcard { background:rgba(255,255,255,.025); border:1px solid rgba(255,255,255,.09); border-radius:1rem; padding:2.25rem 2rem; width:min(400px,100%); text-align:center; }
-.adm-lico  { width:52px; height:52px; border-radius:.875rem; background:rgba(16,185,129,.1); border:1px solid rgba(16,185,129,.22); display:flex; align-items:center; justify-content:center; font-size:1.3rem; color:#10B981; margin:0 auto 1.375rem; }
-.adm-ltitle{ font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:700; color:#e4edf6; margin-bottom:.3rem; }
-.adm-lsub  { font-size:.78rem; color:rgba(255,255,255,.3); margin-bottom:1.625rem; }
-.adm-lf    { margin-bottom:.625rem; text-align:left; }
-.adm-lerr  { color:#f87171; font-size:.75rem; margin-bottom:.625rem; min-height:1.1em; }
+#adm-login{flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:2rem}
+.adm-lcard{background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.09);border-radius:1rem;padding:2.25rem 2rem;width:min(400px,100%);text-align:center}
+.adm-lico{width:52px;height:52px;border-radius:.875rem;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.22);display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:#10B981;margin:0 auto 1.375rem}
+.adm-ltitle{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:#e4edf6;margin-bottom:.3rem}
+.adm-lsub{font-size:.78rem;color:rgba(255,255,255,.3);margin-bottom:1.625rem}
+.adm-lf{margin-bottom:.625rem;text-align:left}
+.adm-lerr{color:#f87171;font-size:.75rem;margin-bottom:.625rem;min-height:1.1em}
 
 /* Toast */
-.adm-twrap { position:fixed; bottom:1.5rem; right:1.5rem; z-index:99999; display:flex; flex-direction:column; gap:.4rem; align-items:flex-end; pointer-events:none; }
-.adm-toast { display:flex; align-items:center; gap:.55rem; padding:.6rem 1rem; border-radius:.55rem; font-family:'DM Sans',sans-serif; font-size:.78rem; font-weight:500; box-shadow:0 8px 28px rgba(0,0,0,.5); pointer-events:auto; animation:adm-tin .22s ease both; max-width:320px; }
-.adm-toast.out { animation:adm-tout .22s ease both; }
-@keyframes adm-tin  { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-@keyframes adm-tout { from{opacity:1;transform:translateY(0)} to{opacity:0;transform:translateY(6px)} }
-.adm-toast.ok   { background:#064e3b; border:1px solid rgba(16,185,129,.35); color:#6ee7b7; }
-.adm-toast.err  { background:#450a0a; border:1px solid rgba(248,113,113,.3);  color:#fca5a5; }
-.adm-toast.info { background:#1e3a5f; border:1px solid rgba(96,165,250,.3);   color:#93c5fd; }
+.adm-twrap{position:fixed;bottom:1.5rem;right:1.5rem;z-index:99999;display:flex;flex-direction:column;gap:.4rem;align-items:flex-end;pointer-events:none}
+.adm-toast{display:flex;align-items:center;gap:.55rem;padding:.6rem 1rem;border-radius:.55rem;font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:500;box-shadow:0 8px 28px rgba(0,0,0,.5);pointer-events:auto;animation:adm-tin .22s ease both;max-width:320px}
+.adm-toast.out{animation:adm-tout .22s ease both}
+@keyframes adm-tin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes adm-tout{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(6px)}}
+.adm-toast.ok{background:#064e3b;border:1px solid rgba(16,185,129,.35);color:#6ee7b7}
+.adm-toast.err{background:#450a0a;border:1px solid rgba(248,113,113,.3);color:#fca5a5}
+.adm-toast.info{background:#1e3a5f;border:1px solid rgba(96,165,250,.3);color:#93c5fd}
 
 /* Confirm */
-#adm-confirm { position:absolute; inset:0; z-index:100; display:none; align-items:center; justify-content:center; background:rgba(3,8,18,.88); backdrop-filter:blur(6px); border-radius:1.25rem; }
-#adm-confirm.on { display:flex; }
-.adm-ccard { background:#0d2038; border:1px solid rgba(248,113,113,.25); border-radius:.875rem; padding:1.875rem 1.625rem; width:min(380px,90%); text-align:center; animation:adm-pop .22s ease both; }
-.adm-cico  { width:44px; height:44px; border-radius:.75rem; background:rgba(248,113,113,.1); border:1px solid rgba(248,113,113,.22); display:flex; align-items:center; justify-content:center; font-size:1.1rem; color:#f87171; margin:0 auto 1rem; }
-.adm-ctit  { font-size:.95rem; font-weight:700; color:#e4edf6; margin-bottom:.375rem; }
-.adm-csub  { font-size:.78rem; color:rgba(255,255,255,.38); margin-bottom:1.375rem; line-height:1.6; }
-.adm-cbtns { display:flex; gap:.5rem; justify-content:center; }
+#adm-confirm{position:absolute;inset:0;z-index:100;display:none;align-items:center;justify-content:center;background:rgba(3,8,18,.88);backdrop-filter:blur(6px);border-radius:1.25rem}
+#adm-confirm.on{display:flex}
+.adm-ccard{background:#0d2038;border:1px solid rgba(248,113,113,.25);border-radius:.875rem;padding:1.875rem 1.625rem;width:min(380px,90%);text-align:center;animation:adm-pop .22s ease both}
+.adm-cico{width:44px;height:44px;border-radius:.75rem;background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.22);display:flex;align-items:center;justify-content:center;font-size:1.1rem;color:#f87171;margin:0 auto 1rem}
+.adm-ctit{font-size:.95rem;font-weight:700;color:#e4edf6;margin-bottom:.375rem}
+.adm-csub{font-size:.78rem;color:rgba(255,255,255,.38);margin-bottom:1.375rem;line-height:1.6}
+.adm-cbtns{display:flex;gap:.5rem;justify-content:center}
 
 /* Spinner */
-.adm-spin { display:inline-block; width:13px; height:13px; border:2px solid rgba(255,255,255,.18); border-top-color:#10B981; border-radius:50%; animation:adm-rot .65s linear infinite; }
-@keyframes adm-rot { to{transform:rotate(360deg)} }
+.adm-spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.18);border-top-color:#10B981;border-radius:50%;animation:adm-rot .65s linear infinite}
+@keyframes adm-rot{to{transform:rotate(360deg)}}
 
 /* Firebase warning */
-.adm-fbwarn { display:flex; align-items:flex-start; gap:.5rem; background:rgba(245,158,11,.07); border:1px solid rgba(245,158,11,.22); border-radius:.55rem; padding:.65rem .875rem; font-size:.74rem; color:rgba(245,158,11,.85); margin-bottom:.875rem; }
+.adm-fbwarn{display:flex;align-items:flex-start;gap:.5rem;background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.22);border-radius:.55rem;padding:.65rem .875rem;font-size:.74rem;color:rgba(245,158,11,.85);margin-bottom:.875rem}
 
 /* Mobile */
-@media(max-width:700px){
-  #adm-panel { width:99vw; height:98vh; border-radius:.75rem; }
-  #adm-sidebar { width:48px; padding:.625rem .3rem; }
-  .adm-nlbl,.adm-nbtn span,.adm-utxt { display:none; }
-  .adm-nbtn { justify-content:center; padding:.55rem 0; }
-  .adm-r2,.adm-r3 { grid-template-columns:1fr; }
-  .adm-cdesc { display:none; }
+@media(max-width:720px){
+  #adm-panel{width:99vw;height:98vh;border-radius:.75rem}
+  #adm-sidebar{width:48px;padding:.625rem .3rem}
+  .adm-nlbl,.adm-nbtn span,.adm-utxt{display:none}
+  .adm-nbtn{justify-content:center;padding:.55rem 0}
+  .adm-r2,.adm-r3{grid-template-columns:1fr}
+  .adm-cdesc{display:none}
 }
     `;
     document.head.appendChild(s);
   }
 
-  // ╔═══════════════════════════╗
-  // ║  HTML Shell               ║
-  // ╚═══════════════════════════╝
+  // ╔══════════════════════════════════════════════════════════════════════════╗
+  // ║  HTML Shell                                                              ║
+  // ╚══════════════════════════════════════════════════════════════════════════╝
   function injectHTML() {
     const wrap = document.createElement('div');
     wrap.id = 'adm-backdrop';
@@ -209,8 +212,8 @@
       <div id="adm-panel" role="dialog" aria-modal="true">
         <div id="adm-header">
           <div class="adm-logo"><div class="adm-logo-dot"></div><span>ESG e Tal</span></div>
-          <div class="adm-chip">CMS</div>
-          <div class="adm-status-bar">
+          <div class="adm-chip">CMS v3</div>
+          <div class="adm-sbar">
             <div class="adm-sdot" id="adm-sdot"></div>
             <span class="adm-stxt" id="adm-stxt">Iniciando…</span>
           </div>
@@ -222,9 +225,10 @@
           <div id="adm-sidebar">
             <div class="adm-nlbl">Conteúdo</div>
             <button class="adm-nbtn on" data-tab="news"><i class="fa-solid fa-newspaper"></i><span>Notícias</span></button>
-            <button class="adm-nbtn"    data-tab="research"><i class="fa-solid fa-flask-vial"></i><span>Pesquisa</span></button>
-            <button class="adm-nbtn"    data-tab="copy"><i class="fa-solid fa-pen-nib"></i><span>Textos</span></button>
-            <button class="adm-nbtn"    data-tab="hero"><i class="fa-solid fa-gauge-high"></i><span>Hero Stats</span></button>
+            <button class="adm-nbtn" data-tab="research"><i class="fa-solid fa-flask-vial"></i><span>Pesquisa</span></button>
+            <button class="adm-nbtn" data-tab="areas"><i class="fa-solid fa-layer-group"></i><span>Áreas</span></button>
+            <button class="adm-nbtn" data-tab="copy"><i class="fa-solid fa-pen-nib"></i><span>Textos</span></button>
+            <button class="adm-nbtn" data-tab="hero"><i class="fa-solid fa-gauge-high"></i><span>Hero Stats</span></button>
             <div class="adm-sfoot">
               <div class="adm-utxt" id="adm-uemail">—</div>
               <button class="adm-nbtn" id="adm-logout" style="color:rgba(248,113,113,.65)">
@@ -252,9 +256,9 @@
     document.body.appendChild(tc);
   }
 
-  // ╔═══════════════════════════╗
-  // ║  Firebase                 ║
-  // ╚═══════════════════════════╝
+  // ╔══════════════════════════════════════════════════════════════════════════╗
+  // ║  Firebase                                                                ║
+  // ╚══════════════════════════════════════════════════════════════════════════╝
   function initFirebase() {
     if (typeof firebase === 'undefined' || typeof firebaseConfig === 'undefined') {
       setStatus('Firebase não configurado', 'err'); return;
@@ -281,9 +285,11 @@
   function pushToSite(d) {
     const r = window.__esgData; if (!r) return;
     ['pt', 'en'].forEach(lang => {
+      // fixed news / research
       if (d.news?.[lang]?.item1) Object.assign(r.ui[lang].news.item1, d.news[lang].item1);
       if (d.news?.[lang]?.item2) Object.assign(r.ui[lang].news.item2, d.news[lang].item2);
       if (d.research?.[lang]?.item1) Object.assign(r.ui[lang].research.item1, d.research[lang].item1);
+      // copy
       if (d.copy?.[lang]) {
         const c = d.copy[lang];
         if (c.hero) Object.assign(r.ui[lang].hero, c.hero);
@@ -292,18 +298,45 @@
         if (c.footer) Object.assign(r.ui[lang].footer, c.footer);
         if (c.nav) Object.assign(r.ui[lang].nav, c.nav);
         if (c.newsNl) Object.assign(r.ui[lang].news.nl, c.newsNl);
+        if (c.modal) Object.assign(r.ui[lang].modal, c.modal);
+        if (c.sectionLabels) {
+          const sl = c.sectionLabels;
+          if (sl.newsTitle) r.ui[lang].news.title = sl.newsTitle;
+          if (sl.aboutTitle) r.ui[lang].about.title = sl.aboutTitle;
+          if (sl.areasTitle) r.ui[lang].areas.title = sl.areasTitle;
+          if (sl.areasLearnMore) r.ui[lang].areas.learnMore = sl.areasLearnMore;
+          if (sl.researchTitle) r.ui[lang].research.title = sl.researchTitle;
+        }
+      }
+      // areas
+      if (d.areasData?.[lang]) {
+        Object.entries(d.areasData[lang]).forEach(([key, data]) => {
+          if (!r.areasData[lang]?.[key]) return;
+          const keep = ['name', 'desc', 'img', 'color', 'colorSoft', 'icon', 'testimonial', 'testimonialAuthor'];
+          keep.forEach(k => { if (data[k] !== undefined) r.areasData[lang][key][k] = data[k]; });
+          if (data.subtopics) {
+            const subs = normArr(data.subtopics);
+            r.areasData[lang][key].subtopics = subs.map(s => ({
+              ...s,
+              img: s.img || null,
+              items: normArr(s.items),
+            }));
+          }
+        });
       }
     });
+    // dynamic lists
     r.dynamicNewsItems = d.dynamicNews ? Object.values(d.dynamicNews).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)) : [];
     r.dynamicResearchItems = d.dynamicResearch ? Object.values(d.dynamicResearch).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)) : [];
     if (d.heroStats && Array.isArray(d.heroStats)) r.heroStats = d.heroStats;
   }
 
-  // ╔═══════════════════════════╗
-  // ║  UI Helpers               ║
-  // ╚═══════════════════════════╝
+  // ╔══════════════════════════════════════════════════════════════════════════╗
+  // ║  UI Helpers                                                              ║
+  // ╚══════════════════════════════════════════════════════════════════════════╝
   function setStatus(msg, type = '') {
-    const dot = document.getElementById('adm-sdot'); const txt = document.getElementById('adm-stxt');
+    const dot = document.getElementById('adm-sdot');
+    const txt = document.getElementById('adm-stxt');
     if (dot) dot.className = 'adm-sdot ' + type;
     if (txt) { txt.textContent = msg; txt.className = 'adm-stxt ' + type; }
   }
@@ -313,7 +346,7 @@
     const icons = { ok: 'fa-circle-check', err: 'fa-circle-xmark', info: 'fa-circle-info' };
     const t = document.createElement('div');
     t.className = 'adm-toast ' + type;
-    t.innerHTML = `<i class="fa-solid ${icons[type] || icons.ok}"></i> ${esc(msg)}`;
+    t.innerHTML = `<i class="fa-solid ${icons[type] || 'fa-circle-check'}"></i> ${esc(msg)}`;
     tc.appendChild(t);
     setTimeout(() => { t.classList.add('out'); setTimeout(() => t.remove(), 240); }, dur);
   }
@@ -331,23 +364,28 @@
     el.innerHTML = tabHTML(); bindTab();
   }
 
-  // ╔═══════════════════════════╗
-  // ║  Login                    ║
-  // ╚═══════════════════════════╝
+  // ╔══════════════════════════════════════════════════════════════════════════╗
+  // ║  Login                                                                   ║
+  // ╚══════════════════════════════════════════════════════════════════════════╝
   function loginHTML() {
     return `<div id="adm-login"><div class="adm-lcard">
       <div class="adm-lico"><i class="fa-solid fa-lock-keyhole"></i></div>
       <div class="adm-ltitle">Acesso Admin</div>
       <div class="adm-lsub">ESG e Tal CMS · Firebase Auth</div>
-      <div class="adm-lf"><label class="adm-label">E-mail</label><input id="adm-email" class="adm-input" type="email" placeholder="admin@esgetal.com.br" autocomplete="email"></div>
-      <div class="adm-lf"><label class="adm-label">Senha</label><input id="adm-pwd" class="adm-input" type="password" placeholder="••••••••" autocomplete="current-password"></div>
+      <div class="adm-lf"><label class="adm-label">E-mail</label>
+        <input id="adm-email" class="adm-input" type="email" placeholder="admin@esgetal.com.br" autocomplete="email"></div>
+      <div class="adm-lf"><label class="adm-label">Senha</label>
+        <input id="adm-pwd" class="adm-input" type="password" placeholder="••••••••" autocomplete="current-password"></div>
       <div class="adm-lerr" id="adm-lerr"></div>
-      <button class="adm-btn adm-pri" id="adm-lbtn" style="width:100%;justify-content:center;margin-top:.25rem"><i class="fa-solid fa-right-to-bracket"></i> Entrar</button>
+      <button class="adm-btn adm-pri" id="adm-lbtn" style="width:100%;justify-content:center;margin-top:.25rem">
+        <i class="fa-solid fa-right-to-bracket"></i> Entrar
+      </button>
     </div></div>`;
   }
 
   function bindLogin() {
-    const btn = document.getElementById('adm-lbtn'); const err = document.getElementById('adm-lerr');
+    const btn = document.getElementById('adm-lbtn');
+    const err = document.getElementById('adm-lerr');
     const go = async () => {
       const e = document.getElementById('adm-email')?.value.trim();
       const p = document.getElementById('adm-pwd')?.value;
@@ -360,14 +398,15 @@
     document.getElementById('adm-pwd')?.addEventListener('keydown', ev => { if (ev.key === 'Enter') go(); });
   }
 
-  // ╔═══════════════════════════╗
-  // ║  Tab wrapper              ║
-  // ╚═══════════════════════════╝
+  // ╔══════════════════════════════════════════════════════════════════════════╗
+  // ║  Tab wrapper                                                             ║
+  // ╚══════════════════════════════════════════════════════════════════════════╝
   const TAB_META = {
     news: { title: 'Notícias', desc: 'Notícias fixas + dinâmicas ilimitadas' },
-    research: { title: 'Pesquisa & Estudos', desc: 'Artigo em destaque + extras' },
-    copy: { title: 'Textos do Site', desc: 'Hero · Nav · About · Contato · Newsletter · Footer' },
-    hero: { title: 'Hero — Estatísticas', desc: '4 badges do hero' },
+    research: { title: 'Pesquisa & Estudos', desc: 'Artigo em destaque + extras dinâmicos' },
+    areas: { title: 'Áreas de Atuação', desc: 'Edite cada área, subtópicos e depoimentos' },
+    copy: { title: 'Textos do Site', desc: 'Hero · Nav · About · Seções · Contato · Newsletter · Footer · Modal' },
+    hero: { title: 'Hero — Estatísticas', desc: '4 badges numéricos do hero' },
   };
 
   function tabHTML() {
@@ -387,31 +426,31 @@
         ${fbW}
         ${S.tab === 'news' ? newsHTML() : ''}
         ${S.tab === 'research' ? resHTML() : ''}
+        ${S.tab === 'areas' ? areasHTML() : ''}
         ${S.tab === 'copy' ? copyHTML() : ''}
         ${S.tab === 'hero' ? heroHTML() : ''}
       </div>`;
   }
 
-  // ╔═══════════════════════════╗
-  // ║  NEWS                     ║
-  // ╚═══════════════════════════╝
+  // ╔══════════════════════════════════════════════════════════════════════════╗
+  // ║  NEWS TAB                                                                ║
+  // ╚══════════════════════════════════════════════════════════════════════════╝
   function newsHTML() {
-    const lang = S.editLang; const r = window.__esgData;
+    const lang = S.editLang, r = window.__esgData;
     const n1 = r?.ui[lang]?.news?.item1 || {}, n2 = r?.ui[lang]?.news?.item2 || {};
     const dyn = dynList('dynamicNews');
-
     return `
       ${acc('an1', 'fa-book-open', `Notícia 1 — Livro <small>(${lang.toUpperCase()})</small>`, true, `
         <div class="adm-r2">
           <div class="adm-field"><label class="adm-label">Data</label><input class="adm-input" id="n1-date" value="${esc(n1.date)}" placeholder="dd/mm/aaaa"></div>
-          <div class="adm-field"><label class="adm-label">Texto do link <small>botão de compra</small></label><input class="adm-input" id="n1-link" value="${esc(n1.link)}"></div>
+          <div class="adm-field"><label class="adm-label">Texto link <small>botão de compra</small></label><input class="adm-input" id="n1-link" value="${esc(n1.link)}"></div>
         </div>
         <div class="adm-field"><label class="adm-label">Manchete</label><input class="adm-input" id="n1-headline" value="${esc(n1.headline)}"></div>
         <div class="adm-field"><label class="adm-label">Corpo §1</label><textarea class="adm-textarea" id="n1-body">${esc(n1.body)}</textarea></div>
         <div class="adm-field"><label class="adm-label">Corpo §2</label><textarea class="adm-textarea" id="n1-body2">${esc(n1.body2)}</textarea></div>
         <div class="adm-acts">
           <button class="adm-btn adm-pri" id="save-n1"><i class="fa-solid fa-cloud-arrow-up"></i> Salvar</button>
-          <button class="adm-btn adm-red" id="reset-n1" title="Remove os overrides do Firebase"><i class="fa-solid fa-rotate-left"></i> Resetar</button>
+          <button class="adm-btn adm-red" id="reset-n1"><i class="fa-solid fa-rotate-left"></i> Resetar</button>
         </div>
       `)}
       ${acc('an2', 'fa-award', `Notícia 2 — Prêmio <small>(${lang.toUpperCase()})</small>`, false, `
@@ -456,14 +495,13 @@
     </div>`;
   }
 
-  // ╔═══════════════════════════╗
-  // ║  RESEARCH                 ║
-  // ╚═══════════════════════════╝
+  // ╔══════════════════════════════════════════════════════════════════════════╗
+  // ║  RESEARCH TAB                                                            ║
+  // ╚══════════════════════════════════════════════════════════════════════════╝
   function resHTML() {
-    const lang = S.editLang; const r = window.__esgData;
+    const lang = S.editLang, r = window.__esgData;
     const ri = r?.ui[lang]?.research?.item1 || {};
     const dyn = dynList('dynamicResearch');
-
     return `
       ${acc('ar1', 'fa-file-lines', `Artigo em Destaque <small>(${lang.toUpperCase()})</small>`, true, `
         <div class="adm-r2">
@@ -481,8 +519,8 @@
         </div>
       `)}
       ${acc('ares', 'fa-circle-plus', 'Artigos Extras', true, `
-        <div class="adm-ilist">${dynRows(dyn, lang, 'research')}</div>
-        ${S.editingType === 'research' && S.editingId ? dynResForm(dyn.find(x => x.id === S.editingId)) : ''}
+        <div class="adm-ilist">${dynRows(dynList('dynamicResearch'), lang, 'research')}</div>
+        ${S.editingType === 'research' && S.editingId ? dynResForm(dynList('dynamicResearch').find(x => x.id === S.editingId)) : ''}
         <button class="adm-btn adm-add" id="new-res"><i class="fa-solid fa-plus"></i> Novo Artigo</button>
       `)}`;
   }
@@ -513,14 +551,154 @@
     </div>`;
   }
 
-  // ╔═══════════════════════════╗
-  // ║  COPY                     ║
-  // ╚═══════════════════════════╝
+  // ╔══════════════════════════════════════════════════════════════════════════╗
+  // ║  AREAS TAB                                                               ║
+  // ╚══════════════════════════════════════════════════════════════════════════╝
+  function areasHTML() {
+    const lang = S.editLang;
+    const r = window.__esgData;
+    const areas = r?.areasData?.[lang] || {};
+    if (!Object.keys(areas).length) {
+      return `<div class="adm-empty" style="padding:2rem;text-align:center">Dados de áreas não encontrados. Verifique se o <code>main.js</code> foi carregado corretamente.</div>`;
+    }
+    const hint = `<div style="font-size:.72rem;color:rgba(255,255,255,.28);margin-bottom:1rem;line-height:1.6;padding:.6rem .875rem;background:rgba(255,255,255,.02);border-radius:.5rem;border:1px solid rgba(255,255,255,.06)">
+      <i class="fa-solid fa-circle-info" style="color:rgba(96,165,250,.6);margin-right:.35rem"></i>
+      Edite cada área individualmente. As alterações sobrescrevem os dados do <code>main.js</code> em tempo real via Firebase. Use <strong>Resetar</strong> para restaurar os valores originais do código.
+    </div>`;
+    return hint + Object.entries(areas).map(([key, area]) => areaAccordion(key, area, lang)).join('');
+  }
+
+  function areaAccordion(key, area, lang) {
+    const isOpen = S.editingArea === key;
+    const color = area.color || '#10B981';
+    const icon = area.icon || 'fa-leaf';
+    const subs = getSubtopics(key, lang);
+
+    // Subtopics list
+    const subRows = subs.map((s, i) => {
+      const isEditing = S.editingArea === key && S.editingSubIdx === i;
+      return `
+        <div class="adm-sub-acc" id="sub-${key}-${i}">
+          <div class="adm-sub-hdr ${isEditing ? 'on' : ''}"
+            onclick="this.classList.toggle('on');this.nextElementSibling.classList.toggle('on')">
+            <div class="adm-sub-num">${i + 1}</div>
+            <span class="adm-sub-title">${esc(s.title || '(sem título)')}</span>
+            <button class="adm-ibtn d" data-del-sub="${key}:${i}" title="Excluir subtópico" style="margin-right:.2rem" onclick="event.stopPropagation()">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+            <i class="fa-solid fa-chevron-down adm-sub-chevron"></i>
+          </div>
+          <div class="adm-sub-body ${isEditing ? 'on' : ''}">
+            <div class="adm-field"><label class="adm-label">Título</label>
+              <input class="adm-input sub-title" id="stitle-${key}-${i}" value="${esc(s.title)}"></div>
+            <div class="adm-field"><label class="adm-label">Imagem URL <small>opcional</small></label>
+              <input class="adm-input sub-img" id="simg-${key}-${i}" value="${esc(s.img)}" placeholder="https://…"></div>
+            <div class="adm-field">
+              <label class="adm-label">Itens / Bullets <small>uma linha = um item</small></label>
+              <textarea class="adm-textarea sub-items" id="sitems-${key}-${i}" style="min-height:90px">${esc(normArr(s.items).join('\n'))}</textarea>
+            </div>
+            <div class="adm-acts" style="padding-top:.5rem">
+              <button class="adm-btn adm-pri" data-save-sub="${key}:${i}">
+                <i class="fa-solid fa-cloud-arrow-up"></i> Salvar Subtópico
+              </button>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+
+    const colorHex = (color.startsWith('#') && color.length === 7) ? color : '#10B981';
+
+    return acc(`area-${key}`, icon,
+      `<span style="color:${color}">${esc(area.name || key)}</span> <small>(${lang.toUpperCase()})</small>`,
+      isOpen,
+      `
+      <!-- ── Basic fields ── -->
+      <div class="adm-section-lbl"><i class="fa-solid fa-sliders"></i> Campos Gerais</div>
+      <div class="adm-r2">
+        <div class="adm-field"><label class="adm-label">Nome da área</label>
+          <input class="adm-input" id="a-name-${key}" value="${esc(area.name)}"></div>
+        <div class="adm-field"><label class="adm-label">Ícone FontAwesome <small>e.g. fa-leaf</small></label>
+          <div style="display:flex;gap:.5rem;align-items:center">
+            <div class="adm-icon-preview" id="icopreview-${key}" style="background:${color}1A;border-color:${color}40;color:${color}">
+              <i class="fa-solid ${esc(icon)}" id="icopreview-i-${key}"></i>
+            </div>
+            <input class="adm-input" id="a-icon-${key}" value="${esc(icon)}" placeholder="fa-leaf"
+              oninput="const p=document.getElementById('icopreview-i-${key}');if(p){p.className='fa-solid '+this.value.trim()}">
+          </div>
+        </div>
+      </div>
+      <div class="adm-field"><label class="adm-label">Cor principal</label>
+        <div class="adm-colorfield">
+          <input type="color" class="adm-cpick" id="a-color-${key}" value="${colorHex}"
+            oninput="document.getElementById('a-color-txt-${key}').value=this.value;document.getElementById('icopreview-${key}').style.color=this.value">
+          <input class="adm-input" id="a-color-txt-${key}" value="${esc(color)}" placeholder="#10B981"
+            oninput="try{document.getElementById('a-color-${key}').value=this.value;document.getElementById('icopreview-${key}').style.color=this.value}catch(e){}">
+        </div>
+      </div>
+      <div class="adm-field"><label class="adm-label">Imagem do card <small>URL</small></label>
+        <input class="adm-input" id="a-img-${key}" value="${esc(area.img)}" placeholder="https://…"></div>
+      <div class="adm-field"><label class="adm-label">Descrição</label>
+        <textarea class="adm-textarea" id="a-desc-${key}">${esc(area.desc)}</textarea></div>
+      <div class="adm-acts">
+        <button class="adm-btn adm-pri" data-save-area="${key}">
+          <i class="fa-solid fa-cloud-arrow-up"></i> Salvar Campos
+        </button>
+        <button class="adm-btn adm-red" data-reset-area="${key}">
+          <i class="fa-solid fa-rotate-left"></i> Resetar Área
+        </button>
+      </div>
+
+      <div class="adm-hr"></div>
+
+      <!-- ── Subtopics ── -->
+      <div class="adm-section-lbl"><i class="fa-solid fa-list-ul"></i> Subtópicos (${subs.length})</div>
+      <div id="subs-container-${key}">
+        ${subRows || `<div class="adm-empty">Nenhum subtópico. Clique em "+" para adicionar.</div>`}
+      </div>
+      <button class="adm-btn adm-add" data-add-sub="${key}">
+        <i class="fa-solid fa-plus"></i> Adicionar Subtópico
+      </button>
+
+      <div class="adm-hr"></div>
+
+      <!-- ── Testimonial ── -->
+      <div class="adm-section-lbl"><i class="fa-solid fa-quote-left"></i> Depoimento</div>
+      <div class="adm-field"><label class="adm-label">Texto do depoimento</label>
+        <textarea class="adm-textarea" id="a-test-${key}" style="min-height:80px">${esc(area.testimonial)}</textarea></div>
+      <div class="adm-field"><label class="adm-label">Autor do depoimento</label>
+        <input class="adm-input" id="a-testauth-${key}" value="${esc(area.testimonialAuthor)}"></div>
+      <div class="adm-acts">
+        <button class="adm-btn adm-pri" data-save-test="${key}">
+          <i class="fa-solid fa-cloud-arrow-up"></i> Salvar Depoimento
+        </button>
+      </div>
+      `
+    );
+  }
+
+  function getSubtopics(key, lang) {
+    // Prefer Firebase data if available, else Alpine data
+    const fbArea = S.dbData?.areasData?.[lang]?.[key];
+    if (fbArea?.subtopics) return normArr(fbArea.subtopics).map(s => ({ ...s, items: normArr(s.items) }));
+    const r = window.__esgData;
+    return JSON.parse(JSON.stringify(r?.areasData?.[lang]?.[key]?.subtopics || []));
+  }
+
+  // ╔══════════════════════════════════════════════════════════════════════════╗
+  // ║  COPY TAB                                                                ║
+  // ╚══════════════════════════════════════════════════════════════════════════╝
   function copyHTML() {
     const lang = S.editLang, r = window.__esgData;
-    const h = r?.ui[lang]?.hero || {}, ab = r?.ui[lang]?.about || {};
-    const ct = r?.ui[lang]?.contact || {}, ft = r?.ui[lang]?.footer || {};
-    const nav = r?.ui[lang]?.nav || {}, nl = r?.ui[lang]?.news?.nl || {};
+    const h = r?.ui[lang]?.hero || {};
+    const ab = r?.ui[lang]?.about || {};
+    const ct = r?.ui[lang]?.contact || {};
+    const ft = r?.ui[lang]?.footer || {};
+    const nav = r?.ui[lang]?.nav || {};
+    const nl = r?.ui[lang]?.news?.nl || {};
+    const mo = r?.ui[lang]?.modal || {};
+    const news = r?.ui[lang]?.news || {};
+    const areas = r?.ui[lang]?.areas || {};
+    const research = r?.ui[lang]?.research || {};
 
     return `
       ${acc('ch', 'fa-globe', `Hero — Textos <small>(${lang.toUpperCase()})</small>`, false, `
@@ -541,18 +719,38 @@
       `)}
       ${acc('cnav', 'fa-bars', `Navegação <small>(${lang.toUpperCase()})</small>`, false, `
         <div class="adm-r3">
-          <div class="adm-field"><label class="adm-label">Inicial/Home</label><input class="adm-input" id="nv-home"    value="${esc(nav.home)}"></div>
-          <div class="adm-field"><label class="adm-label">Notícias</label>    <input class="adm-input" id="nv-news"    value="${esc(nav.news)}"></div>
-          <div class="adm-field"><label class="adm-label">Quem Somos</label>  <input class="adm-input" id="nv-about"   value="${esc(nav.about)}"></div>
+          <div class="adm-field"><label class="adm-label">Inicial/Home</label><input class="adm-input" id="nv-home" value="${esc(nav.home)}"></div>
+          <div class="adm-field"><label class="adm-label">Notícias</label><input class="adm-input" id="nv-news" value="${esc(nav.news)}"></div>
+          <div class="adm-field"><label class="adm-label">Quem Somos</label><input class="adm-input" id="nv-about" value="${esc(nav.about)}"></div>
         </div>
         <div class="adm-r3">
-          <div class="adm-field"><label class="adm-label">Áreas</label>       <input class="adm-input" id="nv-areas"   value="${esc(nav.areas)}"></div>
-          <div class="adm-field"><label class="adm-label">Pesquisa</label>    <input class="adm-input" id="nv-res"     value="${esc(nav.research)}"></div>
-          <div class="adm-field"><label class="adm-label">Contatos</label>    <input class="adm-input" id="nv-contact" value="${esc(nav.contact)}"></div>
+          <div class="adm-field"><label class="adm-label">Áreas</label><input class="adm-input" id="nv-areas" value="${esc(nav.areas)}"></div>
+          <div class="adm-field"><label class="adm-label">Pesquisa</label><input class="adm-input" id="nv-res" value="${esc(nav.research)}"></div>
+          <div class="adm-field"><label class="adm-label">Contatos</label><input class="adm-input" id="nv-contact" value="${esc(nav.contact)}"></div>
         </div>
         <div class="adm-acts">
           <button class="adm-btn adm-pri" id="save-nav"><i class="fa-solid fa-cloud-arrow-up"></i> Salvar</button>
           <button class="adm-btn adm-red" id="reset-nav"><i class="fa-solid fa-rotate-left"></i> Resetar</button>
+        </div>
+      `)}
+      ${acc('csec', 'fa-heading', `Títulos de Seção + Modal <small>(${lang.toUpperCase()})</small>`, false, `
+        <div class="adm-r2">
+          <div class="adm-field"><label class="adm-label">Seção Notícias</label><input class="adm-input" id="sl-news" value="${esc(news.title)}"></div>
+          <div class="adm-field"><label class="adm-label">Label About <small>"NOSSO PROPÓSITO"</small></label><input class="adm-input" id="sl-about" value="${esc(ab.title)}"></div>
+        </div>
+        <div class="adm-r2">
+          <div class="adm-field"><label class="adm-label">Seção Áreas</label><input class="adm-input" id="sl-areas" value="${esc(areas.title)}"></div>
+          <div class="adm-field"><label class="adm-label">Botão "Saiba Mais"</label><input class="adm-input" id="sl-learnmore" value="${esc(areas.learnMore)}"></div>
+        </div>
+        <div class="adm-field"><label class="adm-label">Seção Pesquisa</label><input class="adm-input" id="sl-research" value="${esc(research.title)}"></div>
+        <div class="adm-hr"></div>
+        <div class="adm-r2">
+          <div class="adm-field"><label class="adm-label">Modal — botão fechar</label><input class="adm-input" id="sl-mclose" value="${esc(mo.close)}"></div>
+          <div class="adm-field"><label class="adm-label">Modal — label depoimento</label><input class="adm-input" id="sl-mtest" value="${esc(mo.testimonialLabel)}"></div>
+        </div>
+        <div class="adm-acts">
+          <button class="adm-btn adm-pri" id="save-seclabels"><i class="fa-solid fa-cloud-arrow-up"></i> Salvar</button>
+          <button class="adm-btn adm-red" id="reset-seclabels"><i class="fa-solid fa-rotate-left"></i> Resetar</button>
         </div>
       `)}
       ${acc('cab', 'fa-user-tie', `Quem Somos / About <small>(${lang.toUpperCase()})</small>`, false, `
@@ -563,7 +761,7 @@
           <div class="adm-field"><label class="adm-label">Cargo</label><input class="adm-input" id="ab-qr" value="${esc(ab.quoteRole)}"></div>
         </div>
         <div class="adm-hr"></div>
-        <div class="adm-field"><label class="adm-label">Depoimento</label><textarea class="adm-textarea" id="ab-te">${esc(ab.testimonial)}</textarea></div>
+        <div class="adm-field"><label class="adm-label">Depoimento (bloco roxo)</label><textarea class="adm-textarea" id="ab-te">${esc(ab.testimonial)}</textarea></div>
         <div class="adm-r2">
           <div class="adm-field"><label class="adm-label">Autor do depoimento</label><input class="adm-input" id="ab-ta" value="${esc(ab.testimonialAuthor)}"></div>
           <div class="adm-field"><label class="adm-label">Cargo</label><input class="adm-input" id="ab-tr" value="${esc(ab.testimonialRole)}"></div>
@@ -578,8 +776,8 @@
         <div class="adm-field"><label class="adm-label">Subtítulo</label><textarea class="adm-textarea" id="ct-sub">${esc(ct.subtitle)}</textarea></div>
         <div class="adm-field"><label class="adm-label">Corpo</label><textarea class="adm-textarea" id="ct-body">${esc(ct.body)}</textarea></div>
         <div class="adm-r2">
-          <div class="adm-field"><label class="adm-label">Botão 1 (WhatsApp proposta)</label><input class="adm-input" id="ct-c1" value="${esc(ct.cta1)}"></div>
-          <div class="adm-field"><label class="adm-label">Botão 2 (WhatsApp chat)</label><input class="adm-input" id="ct-c2" value="${esc(ct.cta2)}"></div>
+          <div class="adm-field"><label class="adm-label">Botão 1 <small>proposta</small></label><input class="adm-input" id="ct-c1" value="${esc(ct.cta1)}"></div>
+          <div class="adm-field"><label class="adm-label">Botão 2 <small>chat</small></label><input class="adm-input" id="ct-c2" value="${esc(ct.cta2)}"></div>
         </div>
         <div class="adm-acts">
           <button class="adm-btn adm-pri" id="save-contact"><i class="fa-solid fa-cloud-arrow-up"></i> Salvar</button>
@@ -588,16 +786,16 @@
       `)}
       ${acc('cnl', 'fa-paper-plane', `Newsletter <small>(${lang.toUpperCase()})</small>`, false, `
         <div class="adm-r2">
-          <div class="adm-field"><label class="adm-label">Título</label><input class="adm-input" id="nl-title"  value="${esc(nl.title)}"></div>
+          <div class="adm-field"><label class="adm-label">Título</label><input class="adm-input" id="nl-title" value="${esc(nl.title)}"></div>
           <div class="adm-field"><label class="adm-label">Botão inscrição</label><input class="adm-input" id="nl-btn" value="${esc(nl.btn)}"></div>
         </div>
         <div class="adm-field"><label class="adm-label">Subtítulo</label><textarea class="adm-textarea" id="nl-sub">${esc(nl.subtitle)}</textarea></div>
         <div class="adm-r2">
-          <div class="adm-field"><label class="adm-label">Placeholder nome</label><input class="adm-input" id="nl-namePh"  value="${esc(nl.namePh)}"></div>
+          <div class="adm-field"><label class="adm-label">Placeholder nome</label><input class="adm-input" id="nl-namePh" value="${esc(nl.namePh)}"></div>
           <div class="adm-field"><label class="adm-label">Placeholder e-mail</label><input class="adm-input" id="nl-emailPh" value="${esc(nl.emailPh)}"></div>
         </div>
         <div class="adm-r2">
-          <div class="adm-field"><label class="adm-label">Mensagem sucesso</label><input class="adm-input" id="nl-ok"   value="${esc(nl.ok)}"></div>
+          <div class="adm-field"><label class="adm-label">Mensagem sucesso</label><input class="adm-input" id="nl-ok" value="${esc(nl.ok)}"></div>
           <div class="adm-field"><label class="adm-label">Disclaimer</label><input class="adm-input" id="nl-disc" value="${esc(nl.disclaimer)}"></div>
         </div>
         <div class="adm-acts">
@@ -607,8 +805,8 @@
       `)}
       ${acc('cft', 'fa-shoe-prints', `Footer <small>(${lang.toUpperCase()})</small>`, false, `
         <div class="adm-r2">
-          <div class="adm-field"><label class="adm-label">Tagline</label><input class="adm-input" id="ft-tag"    value="${esc(ft.tagline)}"></div>
-          <div class="adm-field"><label class="adm-label">Copyright / Rights</label><input class="adm-input" id="ft-rights" value="${esc(ft.rights)}"></div>
+          <div class="adm-field"><label class="adm-label">Tagline</label><input class="adm-input" id="ft-tag" value="${esc(ft.tagline)}"></div>
+          <div class="adm-field"><label class="adm-label">Copyright</label><input class="adm-input" id="ft-rights" value="${esc(ft.rights)}"></div>
         </div>
         <div class="adm-acts">
           <button class="adm-btn adm-pri" id="save-footer"><i class="fa-solid fa-cloud-arrow-up"></i> Salvar</button>
@@ -617,9 +815,9 @@
       `)}`;
   }
 
-  // ╔═══════════════════════════╗
-  // ║  HERO STATS               ║
-  // ╚═══════════════════════════╝
+  // ╔══════════════════════════════════════════════════════════════════════════╗
+  // ║  HERO STATS TAB                                                          ║
+  // ╚══════════════════════════════════════════════════════════════════════════╝
   function heroHTML() {
     const def = [
       { value: '4', label_pt: 'Áreas de Atuação', label_en: 'Areas of Expertise' },
@@ -650,9 +848,9 @@
       </div>`;
   }
 
-  // ╔═══════════════════════════╗
-  // ║  Accordion helper         ║
-  // ╚═══════════════════════════╝
+  // ╔══════════════════════════════════════════════════════════════════════════╗
+  // ║  Accordion helper                                                        ║
+  // ╚══════════════════════════════════════════════════════════════════════════╝
   function acc(id, icon, titleHTML, openByDefault, body) {
     const oc = openByDefault ? 'on' : '';
     return `<div class="adm-acc" id="${id}">
@@ -665,9 +863,9 @@
     </div>`;
   }
 
-  // ╔═══════════════════════════╗
-  // ║  Dynamic list helpers     ║
-  // ╚═══════════════════════════╝
+  // ╔══════════════════════════════════════════════════════════════════════════╗
+  // ║  Dynamic list helpers                                                    ║
+  // ╚══════════════════════════════════════════════════════════════════════════╝
   function dynList(key) {
     const raw = S.dbData?.[key];
     return raw ? Object.values(raw).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)) : [];
@@ -675,9 +873,9 @@
 
   function dynRows(items, lang, type) {
     if (!items.length) return `<div class="adm-empty">Nenhum item ainda. Clique em "+" para adicionar.</div>`;
+    const icon = type === 'news' ? 'fa-rss' : 'fa-file-lines';
     return items.map(it => {
       const sel = S.editingType === type && S.editingId === it.id ? 'on' : '';
-      const icon = type === 'news' ? 'fa-rss' : 'fa-file-lines';
       return `<div class="adm-irow ${sel}">
         <div class="adm-iico"><i class="fa-solid ${icon}"></i></div>
         <div class="adm-imeta" data-edit="${type}:${it.id}">
@@ -692,16 +890,16 @@
     }).join('');
   }
 
-  // ╔═══════════════════════════╗
-  // ║  Bind tab events          ║
-  // ╚═══════════════════════════╝
+  // ╔══════════════════════════════════════════════════════════════════════════╗
+  // ║  Bind tab events                                                         ║
+  // ╚══════════════════════════════════════════════════════════════════════════╝
   function bindTab() {
     // lang toggle
     document.querySelectorAll('[data-lang]').forEach(b => b.addEventListener('click', () => {
-      S.editLang = b.dataset.lang; renderContent();
+      S.editLang = b.dataset.lang; S.editingArea = null; S.editingSubIdx = null; renderContent();
     }));
 
-    // edit/delete dynamic rows
+    // dynamic row edit/delete (news & research)
     document.querySelectorAll('[data-edit]').forEach(el => el.addEventListener('click', e => {
       e.stopPropagation();
       const [type, id] = el.dataset.edit.split(':');
@@ -711,7 +909,7 @@
       e.stopPropagation();
       const [type, id] = el.dataset.del.split(':');
       const label = type === 'news' ? 'notícia' : 'artigo';
-      askConfirm(`Excluir este ${label}?`, 'Remove permanentemente do banco de dados.', async () => {
+      askConfirm(`Excluir ${label}?`, 'Remove permanentemente do banco de dados.', async () => {
         const path = type === 'news' ? `${DB_ROOT}/dynamicNews/${id}` : `${DB_ROOT}/dynamicResearch/${id}`;
         await fbDel(path, `${label.charAt(0).toUpperCase() + label.slice(1)} excluído`);
         if (S.editingId === id) { S.editingId = null; S.editingType = null; }
@@ -720,7 +918,7 @@
 
     if (S.tab === 'news') {
       on('save-n1', () => fbUpd(`${DB_ROOT}/news/${S.editLang}/item1`, fields({ date: 'n1-date', headline: 'n1-headline', link: 'n1-link', body: 'n1-body', body2: 'n1-body2' }), 'save-n1', 'Notícia 1 salva'));
-      on('reset-n1', () => askConfirm('Resetar Notícia 1?', 'Remove overrides e exibe o texto padrão do código.', () => fbDel(`${DB_ROOT}/news/${S.editLang}/item1`, 'Notícia 1 resetada')));
+      on('reset-n1', () => askConfirm('Resetar Notícia 1?', 'Remove overrides; texto padrão do código é exibido.', () => fbDel(`${DB_ROOT}/news/${S.editLang}/item1`, 'Notícia 1 resetada')));
       on('save-n2', () => fbUpd(`${DB_ROOT}/news/${S.editLang}/item2`, fields({ date: 'n2-date', headline: 'n2-headline', body: 'n2-body' }), 'save-n2', 'Notícia 2 salva'));
       on('reset-n2', () => askConfirm('Resetar Notícia 2?', '', () => fbDel(`${DB_ROOT}/news/${S.editLang}/item2`, 'Notícia 2 resetada')));
       on('new-news', () => { S.editingType = 'news'; S.editingId = newId(); renderContent(); });
@@ -744,12 +942,85 @@
       });
     }
 
+    if (S.tab === 'areas') {
+      // Save area basic fields
+      document.querySelectorAll('[data-save-area]').forEach(btn => btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const key = btn.dataset.saveArea;
+        const color = v(`a-color-txt-${key}`) || v(`a-color-${key}`) || '#10B981';
+        const payload = {
+          name: v(`a-name-${key}`), desc: v(`a-desc-${key}`),
+          img: v(`a-img-${key}`), color,
+          colorSoft: hexRgba(color, .12), icon: v(`a-icon-${key}`),
+        };
+        fbUpd(`${DB_ROOT}/areasData/${S.editLang}/${key}`, payload, null, 'Área salva', btn);
+      }));
+
+      // Save area testimonial
+      document.querySelectorAll('[data-save-test]').forEach(btn => btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const key = btn.dataset.saveTest;
+        const payload = { testimonial: v(`a-test-${key}`), testimonialAuthor: v(`a-testauth-${key}`) };
+        fbUpd(`${DB_ROOT}/areasData/${S.editLang}/${key}`, payload, null, 'Depoimento salvo', btn);
+      }));
+
+      // Reset area
+      document.querySelectorAll('[data-reset-area]').forEach(btn => btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const key = btn.dataset.resetArea;
+        askConfirm(`Resetar área "${key}"?`, 'Remove todos os overrides do Firebase para esta área e idioma.', () =>
+          fbDel(`${DB_ROOT}/areasData/${S.editLang}/${key}`, `Área "${key}" resetada`));
+      }));
+
+      // Add subtopic
+      document.querySelectorAll('[data-add-sub]').forEach(btn => btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const key = btn.dataset.addSub;
+        const lang = S.editLang;
+        const subs = getSubtopics(key, lang);
+        subs.push({ title: 'Novo Subtópico', img: '', items: ['Item 1', 'Item 2'] });
+        const newIdx = subs.length - 1;
+        fbSet(`${DB_ROOT}/areasData/${lang}/${key}/subtopics`, subs, null, 'Subtópico adicionado', () => {
+          S.editingArea = key; S.editingSubIdx = newIdx;
+        });
+      }));
+
+      // Delete subtopic
+      document.querySelectorAll('[data-del-sub]').forEach(btn => btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const [key, idx] = btn.dataset.delSub.split(':');
+        askConfirm(`Excluir subtópico ${+idx + 1}?`, 'Remove este subtópico da área.', async () => {
+          const lang = S.editLang;
+          const subs = getSubtopics(key, lang);
+          subs.splice(+idx, 1);
+          await fbSet(`${DB_ROOT}/areasData/${lang}/${key}/subtopics`, subs, null, 'Subtópico excluído');
+        });
+      }));
+
+      // Save subtopic
+      document.querySelectorAll('[data-save-sub]').forEach(btn => btn.addEventListener('click', e => {
+        e.stopPropagation();
+        const [key, idx] = btn.dataset.saveSub.split(':');
+        const i = +idx, lang = S.editLang;
+        const subs = getSubtopics(key, lang);
+        if (!subs[i]) return;
+        subs[i] = {
+          title: document.getElementById(`stitle-${key}-${i}`)?.value.trim() || '',
+          img: document.getElementById(`simg-${key}-${i}`)?.value.trim() || null,
+          items: (document.getElementById(`sitems-${key}-${i}`)?.value || '').split('\n').map(x => x.trim()).filter(Boolean),
+        };
+        fbSet(`${DB_ROOT}/areasData/${lang}/${key}/subtopics`, subs, null, 'Subtópico salvo', undefined, btn);
+      }));
+    }
+
     if (S.tab === 'copy') {
       const l = S.editLang;
       on('save-hcopy', () => fbUpd(`${DB_ROOT}/copy/${l}/hero`, fields({ tag1: 'h-t1', tag2: 'h-t2', tag3: 'h-t3', subtitle: 'h-sub', cta: 'h-cta', ctaSub: 'h-ctas' }), 'save-hcopy', 'Hero salvo'));
       on('reset-hcopy', () => askConfirm('Resetar Hero?', '', () => fbDel(`${DB_ROOT}/copy/${l}/hero`, 'Hero resetado')));
       on('save-nav', () => fbUpd(`${DB_ROOT}/copy/${l}/nav`, fields({ home: 'nv-home', news: 'nv-news', about: 'nv-about', areas: 'nv-areas', research: 'nv-res', contact: 'nv-contact' }), 'save-nav', 'Nav salva'));
-      on('reset-nav', () => askConfirm('Resetar navegação?', '', () => fbDel(`${DB_ROOT}/copy/${l}/nav`, 'Nav resetada')));
+      on('reset-nav', () => askConfirm('Resetar Nav?', '', () => fbDel(`${DB_ROOT}/copy/${l}/nav`, 'Nav resetada')));
+      on('save-seclabels', () => fbUpd(`${DB_ROOT}/copy/${l}/sectionLabels`, fields({ newsTitle: 'sl-news', aboutTitle: 'sl-about', areasTitle: 'sl-areas', areasLearnMore: 'sl-learnmore', researchTitle: 'sl-research', modalClose: 'sl-mclose', modalTestimonial: 'sl-mtest' }), 'save-seclabels', 'Títulos salvos'));
+      on('reset-seclabels', () => askConfirm('Resetar títulos de seção?', '', () => fbDel(`${DB_ROOT}/copy/${l}/sectionLabels`, 'Títulos resetados')));
       on('save-about', () => fbUpd(`${DB_ROOT}/copy/${l}/about`, fields({ subtitle: 'ab-sub', quote: 'ab-qt', quoteAuthor: 'ab-qa', quoteRole: 'ab-qr', testimonial: 'ab-te', testimonialAuthor: 'ab-ta', testimonialRole: 'ab-tr' }), 'save-about', 'About salvo'));
       on('reset-about', () => askConfirm('Resetar About?', '', () => fbDel(`${DB_ROOT}/copy/${l}/about`, 'About resetado')));
       on('save-contact', () => fbUpd(`${DB_ROOT}/copy/${l}/contact`, fields({ title: 'ct-title', subtitle: 'ct-sub', body: 'ct-body', cta1: 'ct-c1', cta2: 'ct-c2' }), 'save-contact', 'Contato salvo'));
@@ -769,16 +1040,17 @@
         document.querySelectorAll('.sle').forEach(el => { const i = +el.dataset.i; if (st[i]) st[i].label_en = el.value; });
         fbSet(`${DB_ROOT}/heroStats`, st, 'save-stats', 'Stats salvos');
       });
-      on('reset-stats', () => askConfirm('Resetar Hero Stats?', 'Remove os overrides e exibe os valores padrão.', () => fbDel(`${DB_ROOT}/heroStats`, 'Stats resetadas')));
+      on('reset-stats', () => askConfirm('Resetar Hero Stats?', 'Remove overrides e exibe os valores padrão do código.', () => fbDel(`${DB_ROOT}/heroStats`, 'Stats resetadas')));
     }
   }
 
-  // ╔═══════════════════════════╗
-  // ║  Firebase ops             ║
-  // ╚═══════════════════════════╝
-  async function fbUpd(path, data, btnId, msg) {
-    const b = document.getElementById(btnId), orig = b?.innerHTML;
-    if (b) { b.disabled = true; b.innerHTML = '<span class="adm-spin"></span> Salvando…'; }
+  // ╔══════════════════════════════════════════════════════════════════════════╗
+  // ║  Firebase ops                                                            ║
+  // ╚══════════════════════════════════════════════════════════════════════════╝
+  async function fbUpd(path, data, btnId, msg, btnEl) {
+    const b = btnEl || (btnId ? document.getElementById(btnId) : null);
+    const orig = b?.innerHTML;
+    if (b) { b.disabled = true; b.innerHTML = '<span class="adm-spin"></span>'; }
     try {
       if (S.db) await S.db.ref(path).update(data);
       else pushToSite({ [path.split('/')[1]]: data });
@@ -787,9 +1059,10 @@
     finally { if (b) { b.disabled = false; b.innerHTML = orig; } }
   }
 
-  async function fbSet(path, data, btnId, msg, cb) {
-    const b = document.getElementById(btnId), orig = b?.innerHTML;
-    if (b) { b.disabled = true; b.innerHTML = '<span class="adm-spin"></span> Salvando…'; }
+  async function fbSet(path, data, btnId, msg, cb, btnEl) {
+    const b = btnEl || (btnId ? document.getElementById(btnId) : null);
+    const orig = b?.innerHTML;
+    if (b) { b.disabled = true; b.innerHTML = '<span class="adm-spin"></span>'; }
     try {
       if (S.db) await S.db.ref(path).set(data);
       toast(msg || 'Salvo ✓', 'ok'); setStatus(msg || 'Salvo ✓', 'ok');
@@ -805,24 +1078,25 @@
     } catch (e) { toast('Erro: ' + e.message, 'err'); }
   }
 
-  // ╔═══════════════════════════╗
-  // ║  Global events            ║
-  // ╚═══════════════════════════╝
+  // ╔══════════════════════════════════════════════════════════════════════════╗
+  // ║  Global events                                                           ║
+  // ╚══════════════════════════════════════════════════════════════════════════╝
   function bindGlobal() {
     document.getElementById('adm-close')?.addEventListener('click', toggle);
-    document.getElementById('adm-backdrop')?.addEventListener('click', e => { if (e.target.id === 'adm-backdrop') toggle(); });
-
+    document.getElementById('adm-backdrop')?.addEventListener('click', e => {
+      if (e.target.id === 'adm-backdrop') toggle();
+    });
     document.querySelectorAll('[data-tab]').forEach(btn => btn.addEventListener('click', () => {
-      S.tab = btn.dataset.tab; S.editingId = null; S.editingType = null;
+      S.tab = btn.dataset.tab;
+      S.editingId = null; S.editingType = null;
+      S.editingArea = null; S.editingSubIdx = null;
       document.querySelectorAll('.adm-nbtn').forEach(b => b.classList.remove('on'));
-      btn.classList.add('on'); renderContent();
+      btn.classList.add('on');
+      renderContent();
     }));
-
     document.getElementById('adm-logout')?.addEventListener('click', async () => {
       await S.auth?.signOut(); toast('Sessão encerrada', 'info');
     });
-
-    // Confirm modal
     document.getElementById('adm-cok')?.addEventListener('click', () => {
       document.getElementById('adm-confirm')?.classList.remove('on');
       S.confirmCb?.(); S.confirmCb = null;
@@ -831,31 +1105,40 @@
       document.getElementById('adm-confirm')?.classList.remove('on');
       S.confirmCb = null;
     });
-
     document.addEventListener('keydown', e => {
       if (e.ctrlKey && e.shiftKey && e.key === 'A') { e.preventDefault(); toggle(); }
       if (e.key === 'Escape' && S.open) toggle();
     });
   }
 
-  // ╔═══════════════════════════╗
-  // ║  Utils                    ║
-  // ╚═══════════════════════════╝
+  // ╔══════════════════════════════════════════════════════════════════════════╗
+  // ║  Utils                                                                   ║
+  // ╚══════════════════════════════════════════════════════════════════════════╝
   const v = id => document.getElementById(id)?.value.trim() || '';
   const esc = s => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   const on = (id, fn) => document.getElementById(id)?.addEventListener('click', fn);
   const fields = map => { const o = {}; for (const [k, id] of Object.entries(map)) o[k] = v(id); return o; };
   const newId = () => 'i' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+  const normArr = x => !x ? [] : (Array.isArray(x) ? x : Object.values(x));
+
+  function hexRgba(hex, alpha) {
+    const h = hex.replace('#', '');
+    if (h.length !== 6) return `rgba(16,185,129,${alpha})`;
+    const r = parseInt(h.slice(0, 2), 16);
+    const g = parseInt(h.slice(2, 4), 16);
+    const b = parseInt(h.slice(4, 6), 16);
+    return `rgba(${r},${g},${b},${alpha})`;
+  }
 
   function toggle() {
     S.open = !S.open;
     document.getElementById('adm-backdrop')?.classList.toggle('adm-open', S.open);
-    if (S.open) { S.editingId = null; S.editingType = null; renderContent(); }
+    if (S.open) { S.editingId = null; S.editingType = null; S.editingArea = null; S.editingSubIdx = null; renderContent(); }
   }
 
-  // ╔═══════════════════════════╗
-  // ║  Boot                     ║
-  // ╚═══════════════════════════╝
+  // ╔══════════════════════════════════════════════════════════════════════════╗
+  // ║  Boot                                                                    ║
+  // ╚══════════════════════════════════════════════════════════════════════════╝
   function boot() { injectCSS(); injectHTML(); bindGlobal(); setTimeout(initFirebase, 350); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
