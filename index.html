@@ -1299,8 +1299,6 @@
       background: var(--bg)
     }
 
-    /* contact-card base — overridden by new glassmorphic rules below */
-
     .ct-title {
       font-family: 'Playfair Display', serif;
       font-size: var(--4xl);
@@ -1376,7 +1374,6 @@
       color: var(--green)
     }
 
-    /* ── FOOTER: handled by new theme-aware rules below ── */
     .ft-inner {
       max-width: 1440px;
       margin: 0 auto;
@@ -2194,8 +2191,6 @@
       -webkit-backdrop-filter: blur(32px);
     }
 
-    /* ct-title inherits var(--txt) so it works in both modes already */
-
     /* ── Footer: full adaptive theme ── */
     footer {
       padding: clamp(1.1rem, 2.5vw, 1.75rem) clamp(1.25rem, 5vw, 4rem);
@@ -2208,10 +2203,8 @@
 
     html:not(.dark) footer {
       background: #0B1929;
-      /* stays dark-navy in light mode too — brand choice */
     }
 
-    /* make sure footer text is always light */
     footer .ft-tag {
       color: rgba(255, 255, 255, .32)
     }
@@ -2220,7 +2213,6 @@
       color: rgba(255, 255, 255, .2)
     }
 
-    /* news section heading color follows theme */
     .dark .news-sec .sec-h {
       color: #fff
     }
@@ -2260,8 +2252,7 @@
       transform: translateY(-3px)
     }
 
-    /* ── News unified carousel: 2 per view, equal height ── */
-    /* overflow:hidden is from .cr-wrap base — do NOT override it here */
+    /* ── News unified carousel: equal height slides ── */
     #news-cr .cr-track {
       align-items: stretch
     }
@@ -2311,23 +2302,32 @@
       background: var(--green)
     }
 
-    /* ── News layout: carousel (left) + newsletter fixed (right) ── */
+    /* ─────────────────────────────────────────────────────────────
+       NEWS LAYOUT: 3 colunas iguais
+       [card-news-A] [card-news-B] [newsletter]
+       O carousel ocupa as 2 primeiras colunas (grid-column: span 2)
+       ───────────────────────────────────────────────────────────── */
     .news-layout {
       display: grid;
-      grid-template-columns: 1fr 340px;
+      grid-template-columns: 1fr 1fr 1fr;
       gap: 1.375rem;
       align-items: start;
-    }
-
-    @media(max-width:1099px) {
-      .news-layout {
-        grid-template-columns: 1fr
-      }
     }
 
     /* carousel col must clip its slides */
     .news-layout .cr-wrap {
       overflow: hidden
+    }
+
+    /* tablet: empilha carousel (full width) + newsletter abaixo */
+    @media(max-width:1099px) {
+      .news-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .news-layout .cr-wrap {
+        grid-column: unset;
+      }
     }
 
     /* ── Research vertical card ── */
@@ -2458,7 +2458,7 @@
       color: var(--txt2)
     }
 
-    /* ── Research carousel: 2 per view, max 860px so it doesn't fill full wrap ── */
+    /* ── Research carousel ── */
     #research-cr {
       max-width: min(100%, 860px)
     }
@@ -2512,7 +2512,7 @@
       }
     }
 
-    /* ── Research compact card (old res-card-sm, kept for backwards compat) ── */
+    /* ── Research compact card ── */
     .res-card-sm {
       border-radius: var(--rad);
       padding: clamp(1.25rem, 2vw, 1.75rem);
@@ -2540,24 +2540,18 @@
   <!-- ══ NAVBAR ══ -->
   <nav class="navbar" :class="scrollY>60?'is-scrolled':'is-top'">
     <div class="nav-inner">
-
-      <!-- Logo: x-show does clean display:none swap — no absolute stacking -->
       <div class="nav-logo" @click="scrollTo('home')">
         <img src="https://esgetal.com.br/engl/images/462a6d7c25d0823103237f7631462c3a.png" alt="ESG e Tal"
           x-show="darkMode || scrollY <= 60">
         <img src="https://esgetal.com.br/engl/images/e8f5f57216f727d0ee0df67b8110f48c.png" alt="ESG e Tal"
           x-show="!darkMode && scrollY > 60">
       </div>
-
-      <!-- Desktop links -->
       <nav class="nav-links">
         <template x-for="item in ['home','news','about','areas','research','contact']" :key="item">
           <span class="nav-lnk" :class="{active:activeSection===item}" @click="scrollTo(item)"
             x-text="t('nav.'+item)"></span>
         </template>
       </nav>
-
-      <!-- Controls -->
       <div class="nav-ctrl">
         <button class="tbtn" @click="toggleLang()">
           <span x-show="lang==='pt'">🇧🇷</span><span x-show="lang==='pt'"
@@ -2615,7 +2609,6 @@
     <div class="hero-grid"></div>
     <div class="hero-glow"></div>
     <div class="hero-cnt">
-      <!-- ONE logo in hero, always white -->
       <img src="https://esgetal.com.br/engl/images/462a6d7c25d0823103237f7631462c3a.png" alt="ESG e Tal Consultancy"
         class="hero-logo au1">
       <h1 class="hero-hl au2">
@@ -2656,12 +2649,17 @@
       <h2 class="sec-h" x-text="t('news.title')"></h2>
       <div class="divider"></div>
 
-      <!-- 2-column: news carousel (left) · newsletter card fixed (right) -->
+      <!--
+        Layout: 3 colunas iguais (1fr 1fr 1fr)
+        - Carousel ocupa as 2 primeiras colunas via grid-column: span 2
+        - Cada slide do carousel = 1fr = mesma largura do card newsletter
+        - Newsletter card ocupa a 3ª coluna
+      -->
       <div class="news-layout">
 
-        <!-- ── LEFT: news-only carousel, 1 item per view ── -->
-        <div class="cr-wrap" id="news-cr"
-          x-effect="lang; $nextTick(()=>window.CMS&&CMS.initCarousel('news-cr',{desktop:1,tablet:1,mobile:1,autoplay:7000}))">
+        <!-- ── LEFT (span 2): carousel mostrando 2 cards por vez ── -->
+        <div class="cr-wrap" id="news-cr" style="grid-column: span 2"
+          x-effect="lang; $nextTick(()=>window.CMS&&CMS.initCarousel('news-cr',{desktop:2,tablet:2,mobile:1,autoplay:7000}))">
           <div class="cr-track">
 
             <!-- Slide 1: Notícia do livro -->
@@ -2933,12 +2931,10 @@
       <h2 class="sec-h" :style="darkMode?'color:#fff':''" x-text="t('research.title')"></h2>
       <div class="divider" style="background:var(--purple)"></div>
 
-      <!-- Research carousel: 2 cards per view, vertical layout, max 860px wide -->
       <div class="cr-wrap" id="research-cr"
         x-effect="lang; $nextTick(()=>window.CMS&&CMS.initCarousel('research-cr',{desktop:2,tablet:2,mobile:1,autoplay:6500}))">
         <div class="cr-track">
 
-          <!-- Card fixo: artigo em destaque -->
           <div class="res-v-card cr-slide">
             <img src="https://esgetal.com.br/_assets/media/9fc7ceb1990dd3185b72598a54da4d5a.jpg"
               alt="Pesquisa ESG e Tal" class="res-v-img" loading="lazy">
@@ -2959,10 +2955,8 @@
             </div>
           </div>
 
-          <!-- Cards dinâmicos do CMS -->
           <template x-for="item in dynamicResearchItems" :key="item.id">
             <div class="res-v-card cr-slide">
-              <!-- Imagem (se existir) -->
               <template x-if="item.imgUrl">
                 <img :src="item.imgUrl" :alt="(item.headline?.pt)||'Pesquisa'" class="res-v-img" loading="lazy">
               </template>
@@ -3050,7 +3044,6 @@
   <footer>
     <div class="ft-inner">
       <div style="display:flex;align-items:center;gap:.875rem">
-        <!-- Always use white logo since footer is always dark-navy -->
         <img src="https://esgetal.com.br/engl/images/462a6d7c25d0823103237f7631462c3a.png" alt="ESG e Tal"
           class="ft-logo">
         <div class="ft-tag" x-text="t('footer.tagline')"></div>
